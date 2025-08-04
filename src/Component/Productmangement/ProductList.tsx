@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-  Search, 
-  Plus, 
-  Edit3, 
-  Trash2, 
-  Eye, 
-  Grid3X3, 
-  List, 
+import {
+  Search,
+  Plus,
+  Edit3,
+  Trash2,
+  Eye,
+  Grid3X3,
+  List,
   Filter,
   ChevronDown,
   Package,
@@ -57,6 +57,8 @@ const ProductList = () => {
     images: []
   });
 
+  const token = localStorage.getItem('token');
+  console.log(token);
   // Fetch products
   const fetchProducts = async () => {
     setLoading(true);
@@ -70,15 +72,20 @@ const ProductList = () => {
         sortBy: sortBy
       };
 
-      const { data } = await axios.get(`${API_BASE_URL}/api/v1/product/vendor`, {
-        params,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+
+      const { data } = await axios.post(
+        `${API_BASE_URL}/api/v1/product/vendor`,
+        params, // <-- this is the POST body
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // <-- must be in headers
+          },
         }
-      });
-    
+      );
+      console.log(data);
+
       setProducts(data.data);
-      
+
       setTotalPages(data.pagination.pages);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -269,10 +276,10 @@ const ProductList = () => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="h-12 w-12 flex-shrink-0">
-                      <img 
-                        className="h-12 w-12 rounded-lg object-cover" 
-                        src={product.images[0] || '/api/placeholder/100/100'} 
-                        alt={product.name} 
+                      <img
+                        className="h-12 w-12 rounded-lg object-cover"
+                        src={product.images[0] || '/api/placeholder/100/100'}
+                        alt={product.name}
                       />
                     </div>
                     <div className="ml-4">
@@ -356,8 +363,8 @@ const ProductList = () => {
       {products.map((product) => (
         <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
           <div className="relative">
-            <img 
-              src={product.images[0] || '/api/placeholder/300/200'} 
+            <img
+              src={product.images[0] || '/api/placeholder/300/200'}
               alt={product.name}
               className="w-full h-48 object-cover"
             />
@@ -366,11 +373,11 @@ const ProductList = () => {
               <span className="ml-1 capitalize">{product.status.replace('_', ' ')}</span>
             </div>
           </div>
-          
+
           <div className="p-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-2 truncate">{product.name}</h3>
             <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.shortDescription}</p>
-            
+
             <div className="flex items-center justify-between mb-3">
               <div>
                 <span className="text-lg font-bold text-gray-900">₹{product.price}</span>
@@ -382,7 +389,7 @@ const ProductList = () => {
                 Stock: {product.quantity}
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs text-gray-500">{product.category?.name}</span>
               <div className="flex space-x-1">
@@ -400,7 +407,7 @@ const ProductList = () => {
                 </button>
               </div>
             </div>
-            
+
             <div className="flex space-x-2">
               <button
                 onClick={() => {
@@ -434,7 +441,7 @@ const ProductList = () => {
             <X className="w-6 h-6" />
           </button>
         </div>
-        
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
@@ -445,7 +452,7 @@ const ProductList = () => {
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
             <input
@@ -455,7 +462,7 @@ const ProductList = () => {
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
@@ -465,7 +472,7 @@ const ProductList = () => {
               rows="3"
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Original Price</label>
@@ -476,7 +483,7 @@ const ProductList = () => {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Discount %</label>
               <input
@@ -487,7 +494,7 @@ const ProductList = () => {
               />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
@@ -498,7 +505,7 @@ const ProductList = () => {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
@@ -512,7 +519,7 @@ const ProductList = () => {
               </select>
             </div>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Images</label>
             <input
@@ -524,7 +531,7 @@ const ProductList = () => {
             />
           </div>
         </div>
-        
+
         <div className="flex space-x-3 mt-6">
           <button
             onClick={createProduct}
@@ -553,7 +560,7 @@ const ProductList = () => {
             <X className="w-6 h-6" />
           </button>
         </div>
-        
+
         {selectedProduct && (
           <div className="space-y-4">
             <div>
@@ -565,7 +572,7 @@ const ProductList = () => {
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea
@@ -575,7 +582,7 @@ const ProductList = () => {
                 rows="3"
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Original Price</label>
@@ -586,7 +593,7 @@ const ProductList = () => {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Discount %</label>
                 <input
@@ -597,7 +604,7 @@ const ProductList = () => {
                 />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
@@ -608,7 +615,7 @@ const ProductList = () => {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
@@ -625,7 +632,7 @@ const ProductList = () => {
             </div>
           </div>
         )}
-        
+
         <div className="flex space-x-3 mt-6">
           <button
             onClick={updateProduct}
@@ -668,7 +675,7 @@ const ProductList = () => {
                   className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-              
+
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
@@ -680,7 +687,7 @@ const ProductList = () => {
                 <option value="archived">Archived</option>
                 <option value="out_of_stock">Out of Stock</option>
               </select>
-              
+
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -711,7 +718,7 @@ const ProductList = () => {
                   <Grid3X3 className="w-4 h-4" />
                 </button>
               </div>
-              
+
               <button
                 onClick={() => setShowCreateModal(true)}
                 className="bg-indigo-600 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-700 transition-colors flex items-center space-x-2"
@@ -746,7 +753,7 @@ const ProductList = () => {
             ) : (
               <>
                 {viewMode === 'table' ? <TableView /> : <CardView />}
-                
+
                 {/* Pagination */}
                 {totalPages > 1 && (
                   <div className="flex justify-center items-center space-x-2 mt-8">
@@ -757,24 +764,23 @@ const ProductList = () => {
                     >
                       Previous
                     </button>
-                    
+
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                       const page = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
                       return (
                         <button
                           key={page}
                           onClick={() => setCurrentPage(page)}
-                          className={`px-3 py-2 border rounded-md text-sm font-medium ${
-                            currentPage === page
-                              ? 'bg-indigo-600 text-white border-indigo-600'
-                              : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                          }`}
+                          className={`px-3 py-2 border rounded-md text-sm font-medium ${currentPage === page
+                            ? 'bg-indigo-600 text-white border-indigo-600'
+                            : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                            }`}
                         >
                           {page}
                         </button>
                       );
                     })}
-                    
+
                     <button
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}

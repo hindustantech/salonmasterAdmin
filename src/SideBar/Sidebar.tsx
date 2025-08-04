@@ -329,15 +329,7 @@ const Sidebar: React.FC = () => {
       roles: ['company', 'superadmin'],
       description: 'Overview & analytics'
     },
-    {
-      path: '/analytics',
-      name: 'Analytics',
-      icon: <FiActivity size={20} />,
-      roles: ['company', 'superadmin'],
-      badge: 2,
-      isNew: true,
-      description: 'Advanced insights'
-    },
+   
     {
       path: '/Products',
       name: 'Products',
@@ -366,13 +358,7 @@ const Sidebar: React.FC = () => {
           roles: ['company'],
           badge: 12
         },
-        {
-          path: '/inventory',
-          name: 'Inventory',
-          icon: <FiDatabase size={18} />,
-          roles: ['company'],
-          isNew: true
-        }
+        
       ]
     },
     {
@@ -396,13 +382,7 @@ const Sidebar: React.FC = () => {
           icon: <FiGlobe size={18} />,
           roles: ['company']
         },
-        {
-          path: '/orders/shipping',
-          name: 'Shipping',
-          icon: <FiGlobe size={18} />,
-          roles: ['company'],
-          badge: 8
-        }
+        
       ]
     },
     {
@@ -419,20 +399,6 @@ const Sidebar: React.FC = () => {
           icon: <FiUsers size={18} />,
           roles: ['company']
         },
-        {
-          path: '/customers/segments',
-          name: 'Segments',
-          icon: <FiPieChart size={18} />,
-          roles: ['company'],
-          isNew: true
-        },
-        {
-          path: '/customers/support',
-          name: 'Support',
-          icon: <FiMessageSquare size={18} />,
-          roles: ['company'],
-          badge: 5
-        }
       ]
     },
     {
@@ -465,31 +431,11 @@ const Sidebar: React.FC = () => {
     },
     {
       path: '/company',
-      name: 'Company',
+      name: ' Company Profile',
       icon: <FiBriefcase size={20} />,
       roles: ['company'],
       description: 'Organization info',
-      subItems: [
-        {
-          path: '/company/profile',
-          name: 'Profile',
-          icon: <FiUser size={18} />,
-          roles: ['company']
-        },
-        {
-          path: '/company/employees',
-          name: 'Employees',
-          icon: <FiUsers size={18} />,
-          roles: ['company'],
-          badge: 67
-        },
-        {
-          path: '/company/departments',
-          name: 'Departments',
-          icon: <FiLayers size={18} />,
-          roles: ['company']
-        }
-      ]
+      
     },
     {
       path: '/admin',
@@ -527,40 +473,7 @@ const Sidebar: React.FC = () => {
         }
       ]
     },
-    {
-      path: '/financial',
-      name: 'Financial',
-      icon: <FiDollarSign size={20} />,
-      roles: ['company'],
-      description: 'Financial reports',
-      subItems: [
-        {
-          path: '/financial/revenue',
-          name: 'Revenue',
-          icon: <FiDollarSign size={18} />,
-          roles: ['company']
-        },
-        {
-          path: '/financial/loss',
-          name: 'Profit/Loss',
-          icon: <FiDollarSign size={18} />,
-          roles: ['company']
-        },
-        {
-          path: '/financial/taxes',
-          name: 'Taxes',
-          icon: <FiGlobe size={18} />,
-          roles: ['company']
-        },
-        {
-          path: '/financial/budgets',
-          name: 'Budgets',
-          icon: <FiPieChart size={18} />,
-          roles: ['company'],
-          isNew: true
-        }
-      ]
-    },
+   
     {
       path: '/settings',
       name: 'Settings',
