@@ -1,18 +1,19 @@
-import { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { 
-  Package, 
-  Upload, 
-  X, 
-  DollarSign, 
-  Tag, 
+import {
+  Package,
+  Upload,
+  X,
+  DollarSign,
+  Tag,
   ImageIcon,
   Save,
   ArrowLeft,
-  CheckCircle,
-  AlertCircle
+
 } from 'lucide-react';
 
 interface ProductData {
@@ -40,7 +41,7 @@ const AddProducts = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoryLoading, setCategoryLoading] = useState<boolean>(true);
   const baseurl = import.meta.env.VITE_BASE_URL;
-  
+
   const [productData, setProductData] = useState<ProductData>({
     name: '',
     slug: '',
@@ -89,7 +90,7 @@ const AddProducts = () => {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
+
     if (name === 'name') {
       setProductData(prev => ({
         ...prev,
@@ -196,9 +197,9 @@ const AddProducts = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setLoading(true);
 
     try {
@@ -219,7 +220,7 @@ const AddProducts = () => {
       formData.append('trackQuantity', String(productData.trackQuantity));
       formData.append('quantity', productData.quantity);
       formData.append('status', productData.status);
-      
+
       if (productData.tags) {
         const tagsArray = productData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
         formData.append('tags', JSON.stringify(tagsArray));
@@ -236,16 +237,19 @@ const AddProducts = () => {
         }
       });
 
-      toast.success('Product created successfully!');
-      navigate('/products'); // Navigate to products page after success
-      
+      if (response.status == 201 && response.data.success == 'true') {
+
+        toast.success('Product created successfully!');
+        navigate('/ProductList'); // Navigate to products page after success
+      }
+
     } catch (error) {
       console.error('Product creation error:', error);
-      
+
       let errorMessage = 'Failed to create product';
       if (axios.isAxiosError(error)) {
         errorMessage = error.response?.data?.message || error.message;
-        
+
         if (error.response?.status === 400) {
           if (error.response.data.errors) {
             errorMessage = error.response.data.errors.map((err: any) => err.msg).join(', ');
@@ -257,7 +261,7 @@ const AddProducts = () => {
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -278,7 +282,7 @@ const AddProducts = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => navigate('/products')}
+                onClick={() => navigate('/dashboard')}
                 className="flex items-center space-x-2 text-slate-600 hover:text-slate-900 transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -637,7 +641,7 @@ const AddProducts = () => {
           <div className="flex justify-end space-x-4 pt-6">
             <button
               type="button"
-              onClick={() => navigate('/products')}
+              onClick={() => navigate('/dashboard')}
               className="px-6 py-3 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
               disabled={loading}
             >
@@ -646,6 +650,7 @@ const AddProducts = () => {
             <button
               type="submit"
               disabled={loading}
+              onClick={handleSubmit}
               className={`px-8 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors flex items-center space-x-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               {loading ? (

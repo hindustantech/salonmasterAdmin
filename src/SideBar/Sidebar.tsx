@@ -1,11 +1,10 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import {
-  FiHome, FiBriefcase, FiSettings, FiUsers, FiLayers,
-  FiPieChart, FiLogOut, FiUser, FiChevronDown,
+  FiHome, FiBriefcase, FiSettings, FiUsers
+  , FiLogOut, FiUser, FiChevronDown,
   FiChevronRight, FiMenu, FiX, FiShoppingBag,
-  FiDollarSign, FiTruck, FiFilm, FiBell, FiSearch,
-  FiActivity, FiCalendar, FiMessageSquare,
-  FiShield, FiDatabase, FiGlobe, FiHelpCircle
+  FiTruck, FiFilm, FiBell, FiSearch,
+  FiGlobe, FiHelpCircle,
 } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -94,7 +93,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       <Sidebar />
       <div
         className={`transition-all duration-300 ease-in-out ${isMobileOpen ? 'md:ml-0' :
-            isSidebarCollapsed ? 'md:ml-16' : 'md:ml-72'
+          isSidebarCollapsed ? 'md:ml-16' : 'md:ml-72'
           }`}
       >
         <TopBar />
@@ -218,8 +217,8 @@ const NavigationItem: React.FC<{
           <Link
             to={item.path}
             className={`flex-1 flex items-center px-3 py-3 rounded-2xl transition-all duration-200 group relative ${isActive || hasActiveSubItem
-                ? 'bg-slate-900 text-white shadow-lg'
-                : 'hover:bg-slate-100 text-slate-600 hover:text-slate-900'
+              ? 'bg-slate-900 text-white shadow-lg'
+              : 'hover:bg-slate-100 text-slate-600 hover:text-slate-900'
               }`}
             onClick={onItemClick}
             title={isCollapsed ? item.name : undefined}
@@ -245,8 +244,8 @@ const NavigationItem: React.FC<{
                   )}
                   {item.badge && (
                     <span className={`text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium ${isActive
-                        ? 'bg-white/20 text-white'
-                        : 'bg-red-500 text-white'
+                      ? 'bg-white/20 text-white'
+                      : 'bg-red-500 text-white'
                       }`}>
                       {item.badge > 99 ? '99+' : item.badge}
                     </span>
@@ -273,8 +272,8 @@ const NavigationItem: React.FC<{
         {item.subItems && !isCollapsed && (
           <div
             className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded || hasActiveSubItem
-                ? 'max-h-96 opacity-100 mt-2'
-                : 'max-h-0 opacity-0'
+              ? 'max-h-96 opacity-100 mt-2'
+              : 'max-h-0 opacity-0'
               }`}
           >
             <ul className="ml-6 space-y-1">
@@ -283,8 +282,8 @@ const NavigationItem: React.FC<{
                   <Link
                     to={subItem.path}
                     className={`flex items-center px-3 py-2.5 rounded-xl text-sm transition-all duration-200 group ${isSubItemActive(subItem.path)
-                        ? 'text-slate-900 bg-slate-100 font-medium'
-                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                      ? 'text-slate-900 bg-slate-100 font-medium'
+                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                       }`}
                     onClick={onItemClick}
                   >
@@ -329,7 +328,7 @@ const Sidebar: React.FC = () => {
       roles: ['company', 'superadmin'],
       description: 'Overview & analytics'
     },
-   
+
     {
       path: '/Products',
       name: 'Products',
@@ -358,7 +357,7 @@ const Sidebar: React.FC = () => {
           roles: ['company'],
           badge: 12
         },
-        
+
       ]
     },
     {
@@ -382,7 +381,7 @@ const Sidebar: React.FC = () => {
           icon: <FiGlobe size={18} />,
           roles: ['company']
         },
-        
+
       ]
     },
     {
@@ -402,31 +401,38 @@ const Sidebar: React.FC = () => {
       ]
     },
     {
-      path: '/training',
-      name: 'Training',
-      icon: <FiFilm size={20} />,
+      path: '/ManageTrainingVideos',
+      name: 'Manage Videos',
+      icon: <FiFilm size={18} />,
+      roles: ['superadmin']
+
+    },
+    {
+      path: '/UserManagement',
+      name: 'User Management',
+      icon: <FiUsers size={20} />,
       roles: ['superadmin'],
-      description: 'Learning center',
+      description: 'Manage users',
       subItems: [
         {
-          path: '/training/videos',
-          name: 'Training Videos',
-          icon: <FiFilm size={18} />,
-          roles: ['company', 'superadmin']
-        },
-        {
-          path: '/ManageTrainingVideos',
-          name: 'Manage Videos',
-          icon: <FiFilm size={18} />,
+          path: '/CompanyList',
+          name: 'Company List',
+          icon: <FiUsers size={18} />,
           roles: ['superadmin']
         },
         {
-          path: '/training/courses',
-          name: 'Courses',
-          icon: <FiCalendar size={18} />,
-          roles: ['superadmin'],
-          isNew: true
-        }
+          path: '/SalonList',
+          name: 'Salon List',
+          icon: <FiUsers size={18} />,
+          roles: ['superadmin']
+        },
+        {
+          path: '/WorkersList',
+          name: 'Workers List',
+          icon: <FiUsers size={18} />,
+          roles: ['superadmin']
+        },
+
       ]
     },
     {
@@ -435,45 +441,10 @@ const Sidebar: React.FC = () => {
       icon: <FiBriefcase size={20} />,
       roles: ['company'],
       description: 'Organization info',
-      
+
     },
-    {
-      path: '/admin',
-      name: 'Admin',
-      icon: <FiShield size={20} />,
-      roles: ['superadmin'],
-      description: 'System control',
-      subItems: [
-        {
-          path: '/admin/users',
-          name: 'User Management',
-          icon: <FiUsers size={18} />,
-          roles: ['superadmin'],
-          badge: 1567
-        },
-        {
-          path: '/admin/companies',
-          name: 'Company Management',
-          icon: <FiBriefcase size={18} />,
-          roles: ['superadmin'],
-          badge: 89
-        },
-        {
-          path: '/admin/analytics',
-          name: 'System Analytics',
-          icon: <FiPieChart size={18} />,
-          roles: ['superadmin']
-        },
-        {
-          path: '/admin/security',
-          name: 'Security',
-          icon: <FiShield size={18} />,
-          roles: ['superadmin'],
-          isNew: true
-        }
-      ]
-    },
-   
+
+
     {
       path: '/settings',
       name: 'Settings',
@@ -503,8 +474,9 @@ const Sidebar: React.FC = () => {
     return location.pathname.startsWith(path);
   };
 
-  const hasActiveSubItem = (subItems?: SidebarItem[]) =>
-    subItems?.some(subItem => isActive(subItem.path));
+  const hasActiveSubItem = (subItems: SidebarItem[]): boolean =>
+    subItems.some(subItem => isActive(subItem.path));
+
 
   const handleItemClick = () => {
     if (window.innerWidth < 768) {
@@ -561,7 +533,7 @@ const Sidebar: React.FC = () => {
               item={item}
               isCollapsed={isSidebarCollapsed}
               isActive={isActive(item.path)}
-              hasActiveSubItem={hasActiveSubItem(item.subItems)}
+              hasActiveSubItem={hasActiveSubItem(item.subItems ?? [])}
               onToggleExpand={() => toggleExpand(item.path)}
               onItemClick={handleItemClick}
               isExpanded={expandedItems[item.path]}

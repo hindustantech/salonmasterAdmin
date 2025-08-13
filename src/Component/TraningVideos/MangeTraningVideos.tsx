@@ -211,7 +211,7 @@ const ManageTrainingVideos = () => {
             {getYouTubeThumbnail(video.link) ? (
               <div className="relative h-36 sm:h-40 lg:h-44 bg-gray-200 overflow-hidden">
                 <img
-                  src={getYouTubeThumbnail(video.link)}
+                  src={getYouTubeThumbnail(video.link)||''}
                   alt={video.title}
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                   onError={(e) => {
@@ -346,7 +346,7 @@ const ManageTrainingVideos = () => {
                 <div className="flex-shrink-0">
                   {getYouTubeThumbnail(video.link) ? (
                     <img
-                      src={getYouTubeThumbnail(video.link)}
+                      src={getYouTubeThumbnail(video.link)||''}
                       alt={video.title}
                       className="w-12 h-8 lg:w-16 lg:h-10 object-cover rounded-md border border-gray-200"
                       onError={(e) => {
@@ -732,7 +732,7 @@ const ManageTrainingVideos = () => {
                       <div className="mt-3 p-3 bg-gray-50 rounded-lg">
                         <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
                         <img
-                          src={getYouTubeThumbnail(currentVideo.link)}
+                          src={getYouTubeThumbnail(currentVideo.link)||''}
                           alt="YouTube thumbnail preview"
                           className="h-20 object-cover rounded-md border border-gray-200"
                           onError={(e) => {

@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (data: RegisterData): Promise<void> => {
     dispatch({ type: 'REGISTER_START' });
     try {
-      const response = await api.post('/api/v1/auth/register', data);
+      const response = await api.post('/api/v1/auth/register-salonmaster', data);
       
       // After successful registration, you might want to automatically log the user in
       // or redirect to OTP verification
@@ -139,7 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (data: LoginData): Promise<void> => {
     dispatch({ type: 'LOGIN_START' });
     try {
-      const response = await api.post('/api/v1/auth/login', data);
+      const response = await api.post('/api/v1/auth/login-salonmaster', data);
         console.log("response",response);
       // Save to localStorage
       localStorage.setItem('token', response.data.data.accessToken);
@@ -173,7 +173,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const verifyOtp = async (email:string,otp: string): Promise<void> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      const response = await api.post('/api/v1/auth/verify-otp', { email,otp });
+      const response = await api.post('/api/v1/auth/verify-otp-salonmaster', { email,otp });
 
       // Update user state if needed
       if (response.data.user) {
@@ -214,7 +214,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resetPassword = async (token: string, newPassword: string): Promise<void> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      await api.post('/api/v1/auth/reset-password', { token, newPassword });
+      await api.post('/api/v1/auth/reset-password-salonmasterer', { token, newPassword });
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Password reset failed';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
@@ -257,7 +257,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resendOtp = async (): Promise<void> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      await api.post('/api/v1/auth/resend-otp');
+      await api.post('/api/v1/auth/resend-otp-salonmasterer');
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Failed to resend OTP';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });

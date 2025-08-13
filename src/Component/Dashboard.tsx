@@ -13,24 +13,13 @@ export const Dashboard: React.FC = () => {
 
     return (
         <>
-
-
             {state.user.domain_type === 'company' && (
-               
-
-                    <Dashboard_Compony />
-                  
-               
+                <Dashboard_Compony />
             )}
 
             {state.user.domain_type === 'superadmin' && (
-                
-                    <Dasboard_Super />
-                   
-             
+                <Dasboard_Super />
             )}
-
-          
         </>
     );
 };

@@ -5,44 +5,94 @@ import {
   Plus,
   Edit3,
   Trash2,
-  Eye,
   Grid3X3,
   List,
-  Filter,
-  ChevronDown,
   Package,
-  DollarSign,
-  Tag,
-  Calendar,
+  
   AlertCircle,
   CheckCircle,
   Clock,
   Archive,
-  MoreVertical,
   X,
-  Save,
-  Upload,
+ 
   Minus,
-  PlusIcon
+  Plus as PlusIcon,
 } from 'lucide-react';
+import type { JSX } from 'react/jsx-runtime';
 
-const API_BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:5000';
+// Define environment variable type
+interface Env {
+  VITE_BASE_URL?: string;
+}
 
-const ProductList = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [viewMode, setViewMode] = useState('table'); // 'table' or 'card'
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const [sortBy, setSortBy] = useState('-createdAt');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [newProduct, setNewProduct] = useState({
+// Define types for product and related data
+interface Category {
+  _id?: string;
+  name: string;
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  description: string;
+  shortDescription: string;
+  originalPrice: number;
+  discountPercent: number;
+  price: number;
+  category?: Category;
+  tags: string[];
+  trackQuantity: boolean;
+  quantity: number;
+  status: 'draft' | 'active' | 'archived' | 'out_of_stock';
+  images: string[];
+  createdAt: string;
+}
+
+interface Pagination {
+  page: number;
+  pages: number;
+  total: number;
+  limit: number;
+}
+
+interface ApiResponse {
+  data: Product[];
+  pagination: Pagination;
+}
+
+interface NewProduct {
+  name: string;
+  slug: string;
+  description: string;
+  shortDescription: string;
+  originalPrice: string;
+  discountPercent: number;
+  category: string;
+  tags: string[];
+  trackQuantity: boolean;
+  quantity: number;
+  status: 'draft' | 'active' | 'archived';
+  images: File[];
+}
+
+// API base URL
+const API_BASE_URL: string = (import.meta.env as Env).VITE_BASE_URL || 'http://localhost:5000';
+
+const ProductList: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [selectedCategory] = useState<string>('');
+  const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('-createdAt');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+  const [showEditModal, setShowEditModal] = useState<boolean>(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [newProduct, setNewProduct] = useState<NewProduct>({
     name: '',
     slug: '',
     description: '',
@@ -54,13 +104,13 @@ const ProductList = () => {
     trackQuantity: true,
     quantity: 0,
     status: 'draft',
-    images: []
+    images: [],
   });
 
-  const token = localStorage.getItem('token');
-  console.log(token);
+  const token = localStorage.getItem('token') || '';
+
   // Fetch products
-  const fetchProducts = async () => {
+  const fetchProducts = async (): Promise<void> => {
     setLoading(true);
     try {
       const params = {
@@ -69,23 +119,20 @@ const ProductList = () => {
         search: searchTerm,
         category: selectedCategory,
         status: selectedStatus,
-        sortBy: sortBy
+        sortBy,
       };
 
-
-      const { data } = await axios.post(
+      const { data } = await axios.post<ApiResponse>(
         `${API_BASE_URL}/api/v1/product/vendor`,
-        params, // <-- this is the POST body
+        params,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // <-- must be in headers
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-      console.log(data);
 
       setProducts(data.data);
-
       setTotalPages(data.pagination.pages);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -95,26 +142,26 @@ const ProductList = () => {
   };
 
   // Create product
-  const createProduct = async () => {
+  const createProduct = async (): Promise<void> => {
     try {
       const formData = new FormData();
-      Object.keys(newProduct).forEach(key => {
+      Object.entries(newProduct).forEach(([key, value]) => {
         if (key === 'images') {
-          newProduct.images.forEach(image => {
+          value.forEach((image: File) => {
             formData.append('images', image);
           });
         } else if (key === 'tags') {
-          formData.append('tags', JSON.stringify(newProduct.tags));
+          formData.append('tags', JSON.stringify(value));
         } else {
-          formData.append(key, newProduct[key]);
+          formData.append(key, value as string);
         }
       });
 
       await axios.post(`${API_BASE_URL}/api/v1/product/products`, formData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'multipart/form-data'
-        }
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       setShowCreateModal(false);
@@ -126,13 +173,14 @@ const ProductList = () => {
   };
 
   // Update product
-  const updateProduct = async () => {
+  const updateProduct = async (): Promise<void> => {
+    if (!selectedProduct) return;
     try {
       const { _id, ...updateData } = selectedProduct;
       await axios.put(`${API_BASE_URL}/api/v1/product/${_id}`, updateData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       setShowEditModal(false);
@@ -144,15 +192,12 @@ const ProductList = () => {
   };
 
   // Update inventory
-  const updateInventory = async (productId, action, quantity) => {
+  const updateInventory = async (productId: string, action: 'increment' | 'decrement', quantity: number): Promise<void> => {
     try {
-      await axios.patch(`${API_BASE_URL}/api/v1/product/${productId}/inventory`, {
-        action,
-        quantity
-      }, {
+      await axios.patch(`${API_BASE_URL}/api/v1/product/${productId}/inventory`, { action, quantity }, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       fetchProducts();
     } catch (error) {
@@ -161,14 +206,12 @@ const ProductList = () => {
   };
 
   // Update status
-  const updateStatus = async (productId, status) => {
+  const updateStatus = async (productId: string, status: Product['status']): Promise<void> => {
     try {
-      await axios.patch(`${API_BASE_URL}/api/v1/product/${productId}/status`, {
-        status
-      }, {
+      await axios.patch(`${API_BASE_URL}/api/v1/product/${productId}/status`, { status }, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       fetchProducts();
     } catch (error) {
@@ -177,13 +220,13 @@ const ProductList = () => {
   };
 
   // Delete product
-  const deleteProduct = async (productId) => {
+  const deleteProduct = async (productId: string): Promise<void> => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
         await axios.delete(`${API_BASE_URL}/api/v1/product/${productId}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
         fetchProducts();
       } catch (error) {
@@ -192,7 +235,7 @@ const ProductList = () => {
     }
   };
 
-  const resetNewProduct = () => {
+  const resetNewProduct = (): void => {
     setNewProduct({
       name: '',
       slug: '',
@@ -205,30 +248,30 @@ const ProductList = () => {
       trackQuantity: true,
       quantity: 0,
       status: 'draft',
-      images: []
+      images: [],
     });
   };
 
-  const generateSlug = (name) => {
+  const generateSlug = (name: string): string => {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   };
 
-  const getStatusColor = (status) => {
-    const colors = {
+  const getStatusColor = (status: Product['status']): string => {
+    const colors: Record<Product['status'], string> = {
       active: 'bg-green-100 text-green-800',
       draft: 'bg-yellow-100 text-yellow-800',
       archived: 'bg-gray-100 text-gray-800',
-      out_of_stock: 'bg-red-100 text-red-800'
+      out_of_stock: 'bg-red-100 text-red-800',
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
-  const getStatusIcon = (status) => {
-    const icons = {
+  const getStatusIcon = (status: Product['status']): JSX.Element => {
+    const icons: Record<Product['status'], JSX.Element> = {
       active: <CheckCircle className="w-4 h-4" />,
       draft: <Clock className="w-4 h-4" />,
       archived: <Archive className="w-4 h-4" />,
-      out_of_stock: <AlertCircle className="w-4 h-4" />
+      out_of_stock: <AlertCircle className="w-4 h-4" />,
     };
     return icons[status] || <Clock className="w-4 h-4" />;
   };
@@ -239,12 +282,12 @@ const ProductList = () => {
 
   useEffect(() => {
     if (newProduct.name) {
-      setNewProduct(prev => ({ ...prev, slug: generateSlug(prev.name) }));
+      setNewProduct((prev) => ({ ...prev, slug: generateSlug(prev.name) }));
     }
   }, [newProduct.name]);
 
   // Table View Component
-  const TableView = () => (
+  const TableView: React.FC = () => (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
@@ -320,7 +363,7 @@ const ProductList = () => {
                   <div className="relative">
                     <select
                       value={product.status}
-                      onChange={(e) => updateStatus(product._id, e.target.value)}
+                      onChange={(e) => updateStatus(product._id, e.target.value as Product['status'])}
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border-0 ${getStatusColor(product.status)}`}
                     >
                       <option value="draft">Draft</option>
@@ -358,7 +401,7 @@ const ProductList = () => {
   );
 
   // Card View Component
-  const CardView = () => (
+  const CardView: React.FC = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {products.map((product) => (
         <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -432,7 +475,7 @@ const ProductList = () => {
   );
 
   // Create Product Modal
-  const CreateProductModal = () => (
+  const CreateProductModal: React.FC = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
@@ -448,7 +491,9 @@ const ProductList = () => {
             <input
               type="text"
               value={newProduct.name}
-              onChange={(e) => setNewProduct(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setNewProduct((prev) => ({ ...prev, name: e.target.value }))
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
@@ -458,7 +503,9 @@ const ProductList = () => {
             <input
               type="text"
               value={newProduct.slug}
-              onChange={(e) => setNewProduct(prev => ({ ...prev, slug: e.target.value }))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setNewProduct((prev) => ({ ...prev, slug: e.target.value }))
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
@@ -467,9 +514,11 @@ const ProductList = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
               value={newProduct.description}
-              onChange={(e) => setNewProduct(prev => ({ ...prev, description: e.target.value }))}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setNewProduct((prev) => ({ ...prev, description: e.target.value }))
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              rows="3"
+              rows={3}
             />
           </div>
 
@@ -479,7 +528,9 @@ const ProductList = () => {
               <input
                 type="number"
                 value={newProduct.originalPrice}
-                onChange={(e) => setNewProduct(prev => ({ ...prev, originalPrice: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setNewProduct((prev) => ({ ...prev, originalPrice: e.target.value }))
+                }
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -489,7 +540,9 @@ const ProductList = () => {
               <input
                 type="number"
                 value={newProduct.discountPercent}
-                onChange={(e) => setNewProduct(prev => ({ ...prev, discountPercent: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setNewProduct((prev) => ({ ...prev, discountPercent: Number(e.target.value) }))
+                }
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -501,7 +554,9 @@ const ProductList = () => {
               <input
                 type="number"
                 value={newProduct.quantity}
-                onChange={(e) => setNewProduct(prev => ({ ...prev, quantity: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setNewProduct((prev) => ({ ...prev, quantity: Number(e.target.value) }))
+                }
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -510,7 +565,9 @@ const ProductList = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
               <select
                 value={newProduct.status}
-                onChange={(e) => setNewProduct(prev => ({ ...prev, status: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setNewProduct((prev) => ({ ...prev, status: e.target.value as NewProduct['status'] }))
+                }
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="draft">Draft</option>
@@ -526,7 +583,12 @@ const ProductList = () => {
               type="file"
               multiple
               accept="image/*"
-              onChange={(e) => setNewProduct(prev => ({ ...prev, images: Array.from(e.target.files) }))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setNewProduct((prev) => ({
+                  ...prev,
+                  images: e.target.files ? Array.from(e.target.files) : [],
+                }))
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
@@ -551,7 +613,7 @@ const ProductList = () => {
   );
 
   // Edit Product Modal
-  const EditProductModal = () => (
+  const EditProductModal: React.FC = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
@@ -568,7 +630,9 @@ const ProductList = () => {
               <input
                 type="text"
                 value={selectedProduct.name}
-                onChange={(e) => setSelectedProduct(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setSelectedProduct((prev) => (prev ? { ...prev, name: e.target.value } : prev))
+                }
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -577,9 +641,11 @@ const ProductList = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea
                 value={selectedProduct.description}
-                onChange={(e) => setSelectedProduct(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setSelectedProduct((prev) => (prev ? { ...prev, description: e.target.value } : prev))
+                }
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                rows="3"
+                rows={3}
               />
             </div>
 
@@ -589,7 +655,9 @@ const ProductList = () => {
                 <input
                   type="number"
                   value={selectedProduct.originalPrice}
-                  onChange={(e) => setSelectedProduct(prev => ({ ...prev, originalPrice: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setSelectedProduct((prev) => (prev ? { ...prev, originalPrice: Number(e.target.value) } : prev))
+                  }
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -599,7 +667,9 @@ const ProductList = () => {
                 <input
                   type="number"
                   value={selectedProduct.discountPercent}
-                  onChange={(e) => setSelectedProduct(prev => ({ ...prev, discountPercent: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setSelectedProduct((prev) => (prev ? { ...prev, discountPercent: Number(e.target.value) } : prev))
+                  }
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -611,7 +681,9 @@ const ProductList = () => {
                 <input
                   type="number"
                   value={selectedProduct.quantity}
-                  onChange={(e) => setSelectedProduct(prev => ({ ...prev, quantity: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setSelectedProduct((prev) => (prev ? { ...prev, quantity: Number(e.target.value) } : prev))
+                  }
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -620,7 +692,9 @@ const ProductList = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
                   value={selectedProduct.status}
-                  onChange={(e) => setSelectedProduct(prev => ({ ...prev, status: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setSelectedProduct((prev) => (prev ? { ...prev, status: e.target.value as Product['status'] } : prev))
+                  }
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="draft">Draft</option>
@@ -671,14 +745,14 @@ const ProductList = () => {
                   type="text"
                   placeholder="Search products..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <select
                 value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedStatus(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="">All Status</option>
@@ -690,7 +764,7 @@ const ProductList = () => {
 
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="-createdAt">Newest First</option>
@@ -771,10 +845,11 @@ const ProductList = () => {
                         <button
                           key={page}
                           onClick={() => setCurrentPage(page)}
-                          className={`px-3 py-2 border rounded-md text-sm font-medium ${currentPage === page
-                            ? 'bg-indigo-600 text-white border-indigo-600'
-                            : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                            }`}
+                          className={`px-3 py-2 border rounded-md text-sm font-medium ${
+                            currentPage === page
+                              ? 'bg-indigo-600 text-white border-indigo-600'
+                              : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                          }`}
                         >
                           {page}
                         </button>

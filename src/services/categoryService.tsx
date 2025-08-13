@@ -1,22 +1,24 @@
-import axios, { AxiosError } from 'axios';
 import type {
     Category,
     PaginatedResponse,
     ApiResponse,
     CategoryFormValues
 } from '../types/category';
+import type { AxiosError } from 'axios';
+import axios from 'axios';
 
 const API_URL = `${import.meta.env.VITE_BASE_URL}/api/v1/category`;
 
 const handleApiError = (error: unknown): ApiResponse<never> => {
-    const axiosError = error as AxiosError;
+    const axiosError = error as AxiosError<ApiResponse<never>>;
     return {
         success: false,
         message: axiosError.response?.data?.message || 'An error occurred',
         errors: axiosError.response?.data?.errors,
-        status: axiosError.response?.status,
+        status: axiosError.response?.status
     };
 };
+
 
 export const getCategories = async (
     params: Record<string, unknown> = {}

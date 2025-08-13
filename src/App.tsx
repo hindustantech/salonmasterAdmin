@@ -15,7 +15,11 @@ import Products from './Component/Productmangement/Products';
 import CategoryManagement from './Component/Categorymanagement/Categorymangement';
 import ManageTrainingVideos from './Component/TraningVideos/MangeTraningVideos';
 import { SidebarProvider, DashboardLayout } from './SideBar/Sidebar';
-
+import CompanyList from './Component/UserMnagemnet/CompanyList';
+import UserList from './Component/UserMnagemnet/UserList';
+import SalonList from './Component/UserMnagemnet/SalonList';
+import UserManagement from './Component/UserMnagemnet/UserManagement';
+import CompanyDetail from './Component/UserMnagemnet/UserDeatils/ComapnyDeatils';
 // Layout wrapper for protected routes
 const ProtectedLayoutWrapper: React.FC = () => {
   return (
@@ -55,6 +59,22 @@ const ProtectedLayoutWrapper: React.FC = () => {
           </Route>
           <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
             <Route path="/ManageTrainingVideos" element={<ManageTrainingVideos />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+            <Route path="/CompanyList" element={<CompanyList />} />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+            <Route path="/WorkersList" element={<UserList />} />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+            <Route path="/SalonList" element={<SalonList />} />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+            <Route path="/UserManagement" element={<UserManagement />} />
+          </Route>
+          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+            <Route path="/Detail/:id" element={<CompanyDetail />} />
           </Route>
 
           {/* Company Routes */}
