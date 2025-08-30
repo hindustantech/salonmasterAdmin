@@ -8,17 +8,15 @@ import {
   Grid3X3,
   List,
   Package,
-  
   AlertCircle,
   CheckCircle,
   Clock,
   Archive,
   X,
- 
   Minus,
   Plus as PlusIcon,
 } from 'lucide-react';
-import type { JSX } from 'react/jsx-runtime';
+import type { JSX } from "react";
 
 // Define environment variable type
 interface Env {

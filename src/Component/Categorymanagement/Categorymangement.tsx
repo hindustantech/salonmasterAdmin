@@ -7,7 +7,7 @@ import {
     updateCategory
 } from '../../services/categoryService';
 import type { Category, CategoryFormValues } from '../../types/category';
-
+import { useAuth } from '../../contexts/AuthContext';
 const CategoryManagement = () => {
     const token = localStorage.getItem('token')
     const [categories, setCategories] = useState<Category[]>([]);
@@ -26,16 +26,16 @@ const CategoryManagement = () => {
         isActive: true
     });
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-
+    const { state } = useAuth();
     // Fetch categories
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(prev => ({ ...prev, categories: true }));
                 setError(null);
-                
+
                 const result = await getCategories();
-                
+
                 if (result.success && result.data) {
                     setCategories(result.data.data);
                 } else {
@@ -247,27 +247,34 @@ const CategoryManagement = () => {
                                             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${category.isActive
                                                 ? 'bg-green-100 text-green-800'
                                                 : 'bg-red-100 text-red-800'
-                                            } ${loading.action ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                                } ${loading.action ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                                         >
                                             {loading.action ? 'Processing...' : category.isActive ? 'Active' : 'Inactive'}
                                         </button>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button
-                                            onClick={() => openEditModal(category)}
-                                            disabled={loading.action}
-                                            className={`text-blue-600 hover:text-blue-900 mr-4 ${loading.action ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(category._id)}
-                                            disabled={loading.action}
-                                            className={`text-red-600 hover:text-red-900 ${loading.action ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
+                                    {state?.user?.domain_type === 'superadmin' && (
+                                        <>
+
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <button
+                                                    onClick={() => openEditModal(category)}
+                                                    disabled={loading.action}
+                                                    className={`text-blue-600 hover:text-blue-900 mr-4 ${loading.action ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(category._id)}
+                                                    disabled={loading.action}
+                                                    className={`text-red-600 hover:text-red-900 ${loading.action ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </>
+                                    )}
+
+
                                 </tr>
                             ))}
                         </tbody>

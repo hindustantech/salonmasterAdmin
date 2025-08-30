@@ -54,13 +54,17 @@ const ManageTrainingVideos = () => {
   const fetchVideos = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`${BASE_URL}/api/v1/TraningVideos`, {
+      const response = await api.get(`${BASE_URL}/api/v1/TraningVideos/userby`, {
+        headers: {
+          Authorization: `Bearer ${token}` // ✅ proper way
+        },
         params: {
           page,
           search: searchTerm,
           category: selectedCategory,
         },
       });
+
       setVideos(response.data.videos);
       setTotalPages(response.data.totalPages);
       setTotalVideos(response.data.total);
@@ -211,7 +215,7 @@ const ManageTrainingVideos = () => {
             {getYouTubeThumbnail(video.link) ? (
               <div className="relative h-36 sm:h-40 lg:h-44 bg-gray-200 overflow-hidden">
                 <img
-                  src={getYouTubeThumbnail(video.link)||''}
+                  src={getYouTubeThumbnail(video.link) || ''}
                   alt={video.title}
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                   onError={(e) => {
@@ -225,8 +229,8 @@ const ManageTrainingVideos = () => {
                 <div className="absolute top-2 left-2">
                   <span
                     className={`px-2 py-1 text-xs font-medium rounded-full ${video.isActive
-                        ? 'bg-green-500 text-white'
-                        : 'bg-red-500 text-white'
+                      ? 'bg-green-500 text-white'
+                      : 'bg-red-500 text-white'
                       }`}
                   >
                     {video.isActive ? 'Active' : 'Inactive'}
@@ -346,7 +350,7 @@ const ManageTrainingVideos = () => {
                 <div className="flex-shrink-0">
                   {getYouTubeThumbnail(video.link) ? (
                     <img
-                      src={getYouTubeThumbnail(video.link)||''}
+                      src={getYouTubeThumbnail(video.link) || ''}
                       alt={video.title}
                       className="w-12 h-8 lg:w-16 lg:h-10 object-cover rounded-md border border-gray-200"
                       onError={(e) => {
@@ -408,8 +412,8 @@ const ManageTrainingVideos = () => {
               <div className="col-span-2 lg:col-span-1">
                 <span
                   className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${video.isActive
-                      ? 'bg-green-100 text-green-800 border border-green-200'
-                      : 'bg-red-100 text-red-800 border border-red-200'
+                    ? 'bg-green-100 text-green-800 border border-green-200'
+                    : 'bg-red-100 text-red-800 border border-red-200'
                     }`}
                 >
                   <div
@@ -516,8 +520,8 @@ const ManageTrainingVideos = () => {
               <button
                 onClick={() => setViewMode('card')}
                 className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'card'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
                   }`}
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -528,8 +532,8 @@ const ManageTrainingVideos = () => {
               <button
                 onClick={() => setViewMode('list')}
                 className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'list'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
                   }`}
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -619,8 +623,8 @@ const ManageTrainingVideos = () => {
                           key={pageNum}
                           onClick={() => setPage(pageNum)}
                           className={`px-4 py-2 text-sm font-medium transition-colors border-r border-gray-200 last:border-r-0 ${page === pageNum
-                              ? 'bg-blue-50 text-blue-700 border-blue-200'
-                              : 'text-gray-700 bg-white hover:bg-gray-50'
+                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            : 'text-gray-700 bg-white hover:bg-gray-50'
                             }`}
                         >
                           {pageNum}
@@ -732,7 +736,7 @@ const ManageTrainingVideos = () => {
                       <div className="mt-3 p-3 bg-gray-50 rounded-lg">
                         <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
                         <img
-                          src={getYouTubeThumbnail(currentVideo.link)||''}
+                          src={getYouTubeThumbnail(currentVideo.link) || ''}
                           alt="YouTube thumbnail preview"
                           className="h-20 object-cover rounded-md border border-gray-200"
                           onError={(e) => {

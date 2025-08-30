@@ -38,7 +38,7 @@ export const Register: React.FC = () => {
     const handleVerifyOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await verifyOtp(formData.email, otp);
+            await verifyOtp(formData.whatsapp_number, otp);
             navigate('/login'); // Navigate to login after successful verification
         } catch (error) {
             console.error('OTP verification failed:', error);
@@ -143,7 +143,7 @@ export const Register: React.FC = () => {
 
                             <div>
                                 <label htmlFor="whatsapp_number" className="block text-sm font-medium text-gray-700">
-                                    WhatsApp Number (optional)
+                                    WhatsApp Number 
                                 </label>
                                 <input
                                     id="whatsapp_number"
@@ -171,7 +171,7 @@ export const Register: React.FC = () => {
                         <div className="space-y-4 rounded-md shadow-sm">
                             <div>
                                 <label htmlFor="otp" className="block text-sm font-medium text-gray-700">
-                                    Enter OTP sent to {formData.email}
+                                    Enter OTP sent to {formData.whatsapp_number}
                                 </label>
                                 <input
                                     id="otp"

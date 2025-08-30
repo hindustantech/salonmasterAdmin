@@ -20,6 +20,9 @@ import UserList from './Component/UserMnagemnet/UserList';
 import SalonList from './Component/UserMnagemnet/SalonList';
 import UserManagement from './Component/UserMnagemnet/UserManagement';
 import CompanyDetail from './Component/UserMnagemnet/UserDeatils/ComapnyDeatils';
+// import ImportUser from  './Component/ImportUsers/ImportUsers.TSX';
+import CompanyProfilePage from './Component/CompanyProfile/ComapnyProfile';
+import CartDataViewer from './Component/Order/Order';
 // Layout wrapper for protected routes
 const ProtectedLayoutWrapper: React.FC = () => {
   return (
@@ -27,91 +30,173 @@ const ProtectedLayoutWrapper: React.FC = () => {
       <DashboardLayout>
         <Routes>
           {/* Dashboard Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['company', 'superadmin']} />}>
+          <Route element={<ProtectedRoute
+            allowedRoles={['company', 'superadmin', 'admin']}
+            requiredPermissions={['view_dashboard']}
+          />}>
             <Route path="/" element={<Dashboard />} />
           </Route>
 
           {/* Product Management Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['company', 'superadmin']} />}>
+          <Route element={<ProtectedRoute
+            allowedRoles={['company','superadmin', 'admin']}
+            requiredPermissions={['view_products']}
+          />}>
             <Route path="/Products" element={<Products />} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['company', 'superadmin']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['company','superadmin', 'admin']}
+            requiredPermissions={['add_products']}
+          />}>
             <Route path="/AddProducts" element={<AddProducts />} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['company', 'superadmin']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['company', 'superadmin','admin']}
+            requiredPermissions={['view_products']}
+          />}>
             <Route path="/ProductList" element={<ProductList />} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['company', 'superadmin']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['company', 'superadmin','admin']}
+            requiredPermissions={['manage_categories']}
+          />}>
             <Route path="/CategoryManagement" element={<CategoryManagement />} />
           </Route>
 
           {/* Order Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['company']} />}>
-            <Route path="/orders/list" element={<div>Order List Component</div>} />
-          </Route>
-          <Route element={<ProtectedRoute allowedRoles={['company']} />}>
-            <Route path="/orders/analytics" element={<div>Order Analytics Component</div>} />
+          <Route element={<ProtectedRoute
+            allowedRoles={['company', 'superadmin','admin']}
+            requiredPermissions={['view_orders']}
+          />}>
+            <Route path="/orders" element={<CartDataViewer/>} />
           </Route>
 
+         
+
           {/* Training Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['company', 'superadmin']} />}>
+          <Route element={<ProtectedRoute
+            allowedRoles={['company', 'superadmin', 'admin']}
+            requiredPermissions={['view_training']}
+          />}>
             <Route path="/training/videos" element={<div>Training Videos Component</div>} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin','company']}
+            requiredPermissions={['manage_training']}
+          />}>
             <Route path="/ManageTrainingVideos" element={<ManageTrainingVideos />} />
           </Route>
 
-          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+          {/* Superadmin User Management */}
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['manage_companies']}
+          />}>
             <Route path="/CompanyList" element={<CompanyList />} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['manage_workers']}
+          />}>
             <Route path="/WorkersList" element={<UserList />} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['manage_salons']}
+          />}>
             <Route path="/SalonList" element={<SalonList />} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+          />}>
             <Route path="/UserManagement" element={<UserManagement />} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['view_user_details']}
+          />}>
             <Route path="/Detail/:id" element={<CompanyDetail />} />
           </Route>
 
           {/* Company Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['company']} />}>
+          <Route element={<ProtectedRoute
+            allowedRoles={['company']}
+          />}>
             <Route path="/company" element={<Dashboard_Compony />} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['company']} />}>
-            <Route path="/company/profile" element={<div>Company Profile Component</div>} />
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['company']}
+            requiredPermissions={['manage_profile']}
+          />}>
+            <Route path="/company/profile" element={<CompanyProfilePage/>} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['company']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['company']}
+            requiredPermissions={['manage_employees']}
+          />}>
             <Route path="/company/employees" element={<div>Company Employees Component</div>} />
           </Route>
 
-          {/* Admin Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+          {/* Superadmin Routes */}
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+          />}>
             <Route path="/admin" element={<Dasboard_Super />} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['manage_users']}
+          />}>
             <Route path="/admin/users" element={<div>User Management Component</div>} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['manage_companies']}
+          />}>
             <Route path="/admin/companies" element={<div>Company Management Component</div>} />
           </Route>
-          <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['view_reports']}
+          />}>
             <Route path="/admin/analytics" element={<div>System Analytics Component</div>} />
           </Route>
 
-          {/* Financial Routes */}
-          <Route element={<ProtectedRoute allowedRoles={['company']} />}>
-            <Route path="/financial/revenue" element={<div>Revenue Component</div>} />
-          </Route>
-          <Route element={<ProtectedRoute allowedRoles={['company']} />}>
-            <Route path="/financial/loss" element={<div>Profit/Loss Component</div>} />
+          {/* Admin Routes */}
+          {/* <Route element={<ProtectedRoute
+            allowedRoles={['admin']}
+            requiredPermissions={['view_dashboard']}
+          />}>
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
           </Route>
 
+          <Route element={<ProtectedRoute
+            allowedRoles={['admin']}
+            requiredPermissions={['manage_users']}
+          />}>
+            <Route path="/admin/users" element={<AdminUserManagement />} />
+          </Route> */}
+
+          {/* Financial Routes */}
+          
           {/* Settings Route */}
-          <Route element={<ProtectedRoute allowedRoles={['company', 'superadmin']} />}>
+          <Route element={<ProtectedRoute
+            allowedRoles={['company', 'superadmin', 'admin']}
+            requiredPermissions={['manage_settings']}
+          />}>
             <Route path="/settings" element={<div>Settings Component</div>} />
           </Route>
 

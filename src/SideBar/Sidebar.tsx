@@ -9,7 +9,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 
-type UserRole = 'company' | 'superadmin';
+type UserRole = 'company' | 'superadmin' | 'admin';
 type SidebarItem = {
   path: string;
   name: string;
@@ -330,32 +330,24 @@ const Sidebar: React.FC = () => {
     },
 
     {
-      path: '/Products',
+      path: '/ProductList',
       name: 'Products',
       icon: <FiShoppingBag size={20} />,
-      roles: ['company'],
-      badge: 5,
+      roles: ['company', 'superadmin',],
       description: 'Manage inventory',
       subItems: [
-        {
-          path: '/ProductList',
-          name: 'Product List',
-          icon: <FiShoppingBag size={18} />,
-          roles: ['company'],
-          badge: 45
-        },
+       
         {
           path: '/AddProducts',
           name: 'Add Product',
           icon: <FiShoppingBag size={18} />,
-          roles: ['company']
+          roles: ['company', 'superadmin']
         },
         {
           path: '/CategoryManagement',
           name: 'Categories',
           icon: <FiShoppingBag size={18} />,
-          roles: ['company'],
-          badge: 12
+          roles: ['company', 'superadmin'],
         },
 
       ]
@@ -364,47 +356,17 @@ const Sidebar: React.FC = () => {
       path: '/orders',
       name: 'Orders',
       icon: <FiTruck size={20} />,
-      roles: ['company'],
-      badge: 156,
-      description: 'Track & manage',
-      subItems: [
-        {
-          path: '/orders/list',
-          name: 'Order List',
-          icon: <FiTruck size={18} />,
-          roles: ['company'],
-          badge: 23
-        },
-        {
-          path: '/orders/analytics',
-          name: 'Order Analytics',
-          icon: <FiGlobe size={18} />,
-          roles: ['company']
-        },
-
-      ]
+      roles: ['company', 'superadmin'],
+      description: 'Track',
+    
     },
-    {
-      path: '/customers',
-      name: 'Customers',
-      icon: <FiUsers size={20} />,
-      roles: ['company'],
-      badge: 1234,
-      description: 'Customer relations',
-      subItems: [
-        {
-          path: '/customers/list',
-          name: 'Customer List',
-          icon: <FiUsers size={18} />,
-          roles: ['company']
-        },
-      ]
-    },
+    
+    
     {
       path: '/ManageTrainingVideos',
       name: 'Manage Videos',
       icon: <FiFilm size={18} />,
-      roles: ['superadmin']
+      roles: ['company', 'superadmin']
 
     },
     {
@@ -436,7 +398,7 @@ const Sidebar: React.FC = () => {
       ]
     },
     {
-      path: '/company',
+      path: '/company/profile',
       name: ' Company Profile',
       icon: <FiBriefcase size={20} />,
       roles: ['company'],
@@ -445,20 +407,20 @@ const Sidebar: React.FC = () => {
     },
 
 
-    {
-      path: '/settings',
-      name: 'Settings',
-      icon: <FiSettings size={20} />,
-      roles: ['company', 'superadmin'],
-      description: 'System preferences'
-    },
-    {
-      path: '/help',
-      name: 'Help & Support',
-      icon: <FiHelpCircle size={20} />,
-      roles: ['company', 'superadmin'],
-      description: 'Get assistance'
-    }
+    // {
+    //   path: '/settings',
+    //   name: 'Settings',
+    //   icon: <FiSettings size={20} />,
+    //   roles: ['company', 'superadmin'],
+    //   description: 'System preferences'
+    // },
+    // {
+    //   path: '/help',
+    //   name: 'Help & Support',
+    //   icon: <FiHelpCircle size={20} />,
+    //   roles: ['company', 'superadmin'],
+    //   description: 'Get assistance'
+    // }
   ];
 
   const toggleExpand = (path: string) => {

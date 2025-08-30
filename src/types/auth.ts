@@ -26,7 +26,7 @@ export type RegisterData = {
 };
 
 export type LoginData = {
-    email: string;
+    whatsapp_number: string;
     password: string;
     deviceToken?: string;
 };
@@ -36,7 +36,7 @@ export type AuthContextType = {
     register: (data: RegisterData) => Promise<void>;
     login: (data: LoginData) => Promise<void>;
     logout: () => void;
-    verifyOtp: (email: string, otp: string) => Promise<void>;
+    verifyOtp: (whatsapp_number: string, otp: string) => Promise<void>;
     requestPasswordReset: (email: string) => Promise<void>;
     resetPassword: (token: string, newPassword: string) => Promise<void>;
     refreshToken: () => Promise<void>;

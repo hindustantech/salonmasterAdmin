@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export const Login: React.FC = () => {
-    const [email, setEmail] = useState('');
+    const [whatsapp_number, setwhatsapp_number] = useState('');
     const [password, setPassword] = useState('');
     const [deviceToken, setDeviceToken] = useState('');
     const { state, login } = useAuth();
@@ -14,7 +14,7 @@ export const Login: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await login({ email, password, deviceToken });
+            await login({ whatsapp_number, password, deviceToken });
         } catch (error) {
             console.error('Login failed:', error);
         }
@@ -44,11 +44,11 @@ export const Login: React.FC = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Email</label>
+                        <label className="block text-sm font-medium text-gray-700">whatsapp Number</label>
                         <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            type="text"
+                            value={whatsapp_number}
+                            onChange={(e) =>setwhatsapp_number(e.target.value)}
                             required
                             className="w-full px-4 py-2 mt-1 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
                         />

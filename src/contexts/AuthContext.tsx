@@ -170,10 +170,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Verify OTP function
-  const verifyOtp = async (email:string,otp: string): Promise<void> => {
+  const verifyOtp = async (whatsapp_number:string,otp: string): Promise<void> => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      const response = await api.post('/api/v1/auth/verify-otp-salonmaster', { email,otp });
+      const response = await api.post('/api/v1/auth/verify-otp-salonmaster', { whatsapp_number,otp });
 
       // Update user state if needed
       if (response.data.user) {
