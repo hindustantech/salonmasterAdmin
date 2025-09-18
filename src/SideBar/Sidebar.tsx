@@ -1,10 +1,9 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import {
-  FiHome, FiBriefcase, FiSettings, FiUsers
+  FiHome, FiBriefcase, FiUsers
   , FiLogOut, FiUser, FiChevronDown,
   FiChevronRight, FiMenu, FiX, FiShoppingBag,
   FiTruck, FiFilm, FiBell, FiSearch,
-  FiGlobe, FiHelpCircle,
 } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
@@ -403,6 +402,30 @@ const Sidebar: React.FC = () => {
       icon: <FiBriefcase size={20} />,
       roles: ['company'],
       description: 'Organization info',
+
+    },
+    {
+      path: '/AddUser',
+      name: 'Add User',
+      icon: <FiBriefcase size={20} />,
+      roles: ['superadmin'],
+      description: 'Manage users',
+
+    },
+    {
+      path: '/UserTracking',
+      name: 'UserTracking',
+      icon: <FiBriefcase size={20} />,
+      roles: ['superadmin','admin'],
+      description: 'UserTracking',
+
+    },
+    {
+      path: '/UploadPage',
+      name: 'UploadPage',
+      icon: <FiBriefcase size={20} />,
+      roles: ['superadmin'],
+      description: 'UploadPage',
 
     },
 

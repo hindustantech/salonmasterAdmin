@@ -3,27 +3,9 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Define TypeScript interfaces (unchanged)
-interface User {
-    _id: string;
-    name: string;
-    email: string;
-}
 
-interface Product {
-    _id: string;
-    name: string;
-    price: number;
-    UserId: string;
-}
 
-interface CartItem {
-    _id: string;
-    user_id: User;
-    product_id: Product;
-    quantity: number;
-    datetime: string;
-    status: string;
-}
+
 
 interface TransformedCartItem {
     userName: string;

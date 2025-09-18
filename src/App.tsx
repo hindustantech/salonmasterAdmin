@@ -23,6 +23,9 @@ import CompanyDetail from './Component/UserMnagemnet/UserDeatils/ComapnyDeatils'
 // import ImportUser from  './Component/ImportUsers/ImportUsers.TSX';
 import CompanyProfilePage from './Component/CompanyProfile/ComapnyProfile';
 import CartDataViewer from './Component/Order/Order';
+import AddUser from './Component/Adduser/Add_user';
+import UploadPage from './Component/dummaydata/UploadPage';
+import { UserTracking } from './Component/UserTraking/UserTrakingSystem';
 // Layout wrapper for protected routes
 const ProtectedLayoutWrapper: React.FC = () => {
   return (
@@ -43,6 +46,12 @@ const ProtectedLayoutWrapper: React.FC = () => {
             requiredPermissions={['view_products']}
           />}>
             <Route path="/Products" element={<Products />} />
+          </Route>
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin', 'admin']}
+            requiredPermissions={['UserTracking']}
+          />}>
+            <Route path="/UserTracking" element={<UserTracking />} />
           </Route>
 
           <Route element={<ProtectedRoute
@@ -92,6 +101,20 @@ const ProtectedLayoutWrapper: React.FC = () => {
           </Route>
 
           {/* Superadmin User Management */}
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['manage_companies']}
+          />}>
+            <Route path="/CompanyList" element={<CompanyList />} />
+          </Route>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['AddUser']}
+          />}>
+            <Route path="/AddUser" element={<AddUser />} />
+          </Route>
+
           <Route element={<ProtectedRoute
             allowedRoles={['superadmin']}
             requiredPermissions={['manage_companies']}
@@ -173,6 +196,13 @@ const ProtectedLayoutWrapper: React.FC = () => {
             requiredPermissions={['view_reports']}
           />}>
             <Route path="/admin/analytics" element={<div>System Analytics Component</div>} />
+          </Route>
+
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['UploadPage']}
+          />}>
+            <Route path="/UploadPage" element={<UploadPage/>} />
           </Route>
 
           {/* Admin Routes */}

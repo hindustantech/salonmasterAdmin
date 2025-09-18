@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   User,
   Building2,
@@ -76,8 +75,7 @@ const CompanyProfilePage: React.FC = () => {
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
-  const navigate = useNavigate();
-  const API_BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:5000';
+  const API_BASE_URL = import.meta.env.VITE_BASE_URL ||  'http://localhost:5000';
   const [profile, setProfile] = useState<CompanyProfile>({
     company_name: '',
     brand: '',

@@ -12,11 +12,15 @@ import {
   CheckCircle,
   Clock,
   Archive,
-  X,
   Minus,
   Plus as PlusIcon,
 } from 'lucide-react';
 import type { JSX } from "react";
+// import EditProductModal from './EditProduct';
+// import CreateProductModal from './CreateProduct';
+
+import EditProductModal from './EdditProduct';
+import CreateProductModal from './createproduct';
 
 // Define environment variable type
 interface Env {
@@ -24,12 +28,12 @@ interface Env {
 }
 
 // Define types for product and related data
-interface Category {
+export interface Category {
   _id?: string;
   name: string;
 }
 
-interface Product {
+export interface Product {
   _id: string;
   name: string;
   slug: string;
@@ -64,7 +68,7 @@ interface NewProduct {
   slug: string;
   description: string;
   shortDescription: string;
-  originalPrice: string;
+  originalPrice: number;
   discountPercent: number;
   category: string;
   tags: string[];
@@ -95,7 +99,7 @@ const ProductList: React.FC = () => {
     slug: '',
     description: '',
     shortDescription: '',
-    originalPrice: '',
+    originalPrice: 0,
     discountPercent: 0,
     category: '',
     tags: [],
@@ -151,7 +155,7 @@ const ProductList: React.FC = () => {
         } else if (key === 'tags') {
           formData.append('tags', JSON.stringify(value));
         } else {
-          formData.append(key, value as string);
+          formData.append(key, value.toString());
         }
       });
 
@@ -239,7 +243,7 @@ const ProductList: React.FC = () => {
       slug: '',
       description: '',
       shortDescription: '',
-      originalPrice: '',
+      originalPrice: 0,
       discountPercent: 0,
       category: '',
       tags: [],
@@ -472,257 +476,6 @@ const ProductList: React.FC = () => {
     </div>
   );
 
-  // Create Product Modal
-  const CreateProductModal: React.FC = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Create New Product</h2>
-          <button onClick={() => setShowCreateModal(false)}>
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-            <input
-              type="text"
-              value={newProduct.name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setNewProduct((prev) => ({ ...prev, name: e.target.value }))
-              }
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Slug</label>
-            <input
-              type="text"
-              value={newProduct.slug}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setNewProduct((prev) => ({ ...prev, slug: e.target.value }))
-              }
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea
-              value={newProduct.description}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setNewProduct((prev) => ({ ...prev, description: e.target.value }))
-              }
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              rows={3}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Original Price</label>
-              <input
-                type="number"
-                value={newProduct.originalPrice}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setNewProduct((prev) => ({ ...prev, originalPrice: e.target.value }))
-                }
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Discount %</label>
-              <input
-                type="number"
-                value={newProduct.discountPercent}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setNewProduct((prev) => ({ ...prev, discountPercent: Number(e.target.value) }))
-                }
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-              <input
-                type="number"
-                value={newProduct.quantity}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setNewProduct((prev) => ({ ...prev, quantity: Number(e.target.value) }))
-                }
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <select
-                value={newProduct.status}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                  setNewProduct((prev) => ({ ...prev, status: e.target.value as NewProduct['status'] }))
-                }
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="draft">Draft</option>
-                <option value="active">Active</option>
-                <option value="archived">Archived</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Images</label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setNewProduct((prev) => ({
-                  ...prev,
-                  images: e.target.files ? Array.from(e.target.files) : [],
-                }))
-              }
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-        </div>
-
-        <div className="flex space-x-3 mt-6">
-          <button
-            onClick={createProduct}
-            className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-md font-medium hover:bg-indigo-700 transition-colors"
-          >
-            Create Product
-          </button>
-          <button
-            onClick={() => setShowCreateModal(false)}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Edit Product Modal
-  const EditProductModal: React.FC = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Edit Product</h2>
-          <button onClick={() => setShowEditModal(false)}>
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        {selectedProduct && (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-              <input
-                type="text"
-                value={selectedProduct.name}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setSelectedProduct((prev) => (prev ? { ...prev, name: e.target.value } : prev))
-                }
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-              <textarea
-                value={selectedProduct.description}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setSelectedProduct((prev) => (prev ? { ...prev, description: e.target.value } : prev))
-                }
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                rows={3}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Original Price</label>
-                <input
-                  type="number"
-                  value={selectedProduct.originalPrice}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setSelectedProduct((prev) => (prev ? { ...prev, originalPrice: Number(e.target.value) } : prev))
-                  }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Discount %</label>
-                <input
-                  type="number"
-                  value={selectedProduct.discountPercent}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setSelectedProduct((prev) => (prev ? { ...prev, discountPercent: Number(e.target.value) } : prev))
-                  }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                <input
-                  type="number"
-                  value={selectedProduct.quantity}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setSelectedProduct((prev) => (prev ? { ...prev, quantity: Number(e.target.value) } : prev))
-                  }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select
-                  value={selectedProduct.status}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    setSelectedProduct((prev) => (prev ? { ...prev, status: e.target.value as Product['status'] } : prev))
-                  }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  <option value="draft">Draft</option>
-                  <option value="active">Active</option>
-                  <option value="archived">Archived</option>
-                  <option value="out_of_stock">Out of Stock</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="flex space-x-3 mt-6">
-          <button
-            onClick={updateProduct}
-            className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-md font-medium hover:bg-indigo-700 transition-colors"
-          >
-            Update Product
-          </button>
-          <button
-            onClick={() => setShowEditModal(false)}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -869,8 +622,23 @@ const ProductList: React.FC = () => {
         )}
 
         {/* Modals */}
-        {showCreateModal && <CreateProductModal />}
-        {showEditModal && <EditProductModal />}
+        {showCreateModal && (
+          <CreateProductModal
+            newProduct={newProduct}
+            setNewProduct={setNewProduct}
+            setShowCreateModal={setShowCreateModal}
+            createProduct={createProduct}
+          />
+        )}
+
+        {showEditModal && (
+          <EditProductModal
+            selectedProduct={selectedProduct}
+            setSelectedProduct={setSelectedProduct}
+            setShowEditModal={setShowEditModal}
+            updateProduct={updateProduct}
+          />
+        )}
       </div>
     </div>
   );

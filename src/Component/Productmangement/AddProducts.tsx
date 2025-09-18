@@ -236,15 +236,18 @@ const AddProducts = () => {
           'Authorization': `Bearer ${token}`
         }
       });
+      console.log("response.status",response.status)
 
-      if (response.status == 201 && response.data.success == 'true') {
+      if (response.status == 201 ) {
 
         toast.success('Product created successfully!');
         navigate('/ProductList'); // Navigate to products page after success
       }
 
     } catch (error) {
-      console.error('Product creation error:', error);
+      toast.error("unexpeted", {
+        position: "bottom-center",
+      });
 
       let errorMessage = 'Failed to create product';
       if (axios.isAxiosError(error)) {

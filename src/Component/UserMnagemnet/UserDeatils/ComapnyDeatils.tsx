@@ -90,7 +90,7 @@ const CompanyDetail: React.FC = () => {
         if (window.confirm('Are you sure you want to delete this company?')) {
             try {
                 await deleteUser(id!);
-                navigate('/user-management');
+                navigate(-1);
             } catch (error) {
                 console.error('Error deleting company:', error);
             }

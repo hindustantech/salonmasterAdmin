@@ -72,6 +72,7 @@ export const deleteUser = async (id: string) => {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
+            
         });
         return response.data;
     } catch (error) {

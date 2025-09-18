@@ -8,14 +8,9 @@ interface ImportResult {
     errors: string[];
 }
 
-interface ImportMetaEnv {
-  readonly VITE_API_URL: string; // 👈 add all your env vars here
-  // readonly VITE_SOME_KEY: string;
-}
 
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
-}
+
+
 
 const ImportUsers: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
