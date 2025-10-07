@@ -43,7 +43,7 @@ const SalonList: React.FC = () => {
     }, [currentPage, searchTerm, fromDate, toDate, isSuspendedFilter]);
 
     const handleViewDetails = (id: string) => {
-        navigate(`/Detail/${id}`);
+        navigate(`/Detail/salon/${id}`);
     };
 
     const handleStatusChange = async (id: string, isSuspended: boolean) => {
@@ -80,7 +80,7 @@ const SalonList: React.FC = () => {
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="py-3 px-4 text-left">Salon Name</th>
-                                    <th className="py-3 px-4 text-left">Email</th>
+                                    {/* <th className="py-3 px-4 text-left">Email</th> */}
                                     <th className="py-3 px-4 text-left">Phone</th>
                                     <th className="py-3 px-4 text-left">Location</th>
                                     <th className="py-3 px-4 text-left">Created At</th>
@@ -92,7 +92,7 @@ const SalonList: React.FC = () => {
                                 {salons.map((salon) => (
                                     <tr key={salon._id} className="border-b border-gray-200 hover:bg-gray-50">
                                         <td className="py-3 px-4">{salon.name}</td>
-                                        <td className="py-3 px-4">{salon.email}</td>
+                                        {/* <td className="py-3 px-4">{salon.email}</td> */}
                                         <td className="py-3 px-4">{salon.whatsapp_number}</td>
                                         <td className="py-3 px-4">-</td>
                                         <td className="py-3 px-4">{new Date(salon.createdAt).toLocaleDateString()}</td>

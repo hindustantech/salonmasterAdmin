@@ -43,7 +43,7 @@ const UserList: React.FC = () => {
   }, [currentPage, searchTerm, fromDate, toDate, isSuspendedFilter]);
 
   const handleViewDetails = (id: string) => {
-    navigate(`/Detail/${id}`);
+    navigate(`/Detail/emp/${id}`);
   };
 
   const handleStatusChange = async (id: string, isSuspended: boolean) => {
@@ -80,9 +80,9 @@ const UserList: React.FC = () => {
               <thead className="bg-gray-100">
                 <tr>
                   <th className="py-3 px-4 text-left">Name</th>
-                  <th className="py-3 px-4 text-left">Email</th>
+                  {/* <th className="py-3 px-4 text-left">Email</th> */}
                   <th className="py-3 px-4 text-left">Phone</th>
-                  <th className="py-3 px-4 text-left">Gender</th>
+                  {/* <th className="py-3 px-4 text-left">Gender</th> */}
                   <th className="py-3 px-4 text-left">Created At</th>
                   <th className="py-3 px-4 text-left">Status</th>
                   <th className="py-3 px-4 text-left">Actions</th>
@@ -92,9 +92,9 @@ const UserList: React.FC = () => {
                 {workers.map((worker) => (
                   <tr key={worker._id} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="py-3 px-4">{worker.name}</td>
-                    <td className="py-3 px-4">{worker.email}</td>
+                    {/* <td className="py-3 px-4">{worker.email}</td> */}
                     <td className="py-3 px-4">{worker.whatsapp_number}</td>
-                    <td className="py-3 px-4">-</td>
+                    {/* <td className="py-3 px-4">-</td> */}
                     <td className="py-3 px-4">{new Date(worker.createdAt).toLocaleDateString()}</td>
                     <td className="py-3 px-4">
                       <span className={`px-2 py-1 rounded-full text-xs ${worker.isSuspended ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>

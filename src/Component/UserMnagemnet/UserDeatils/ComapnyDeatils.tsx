@@ -1,270 +1,633 @@
-// src/pages/UserManagement/CompanyDetail.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getUserById, updateUser, toggleUserSuspension, deleteUser } from '../../services/userService';
+import { toast } from 'react-toastify'; // Assuming react-toastify for notifications
+
+interface UserData {
+  _id: string;
+  name: string;
+  email: string;
+  whatsapp_number: string;
+  domain_type: string;
+  isSuspended: boolean;
+  createdAt: string;
+}
+
+interface CompanyProfile {
+  _id: string;
+  user_id: string;
+  unique_name?: string;
+  company_name?: string;
+  brand?: string;
+  whatsapp_number?: string;
+  gst_number?: string;
+  pan_number?: string;
+  cin?: string;
+  address?: {
+    country?: string;
+    state?: string;
+    city?: string;
+    pincode?: string;
+    countryIsoCode?: string;
+    stateIsoCode?: string;
+  };
+  image?: string;
+  social_media_links?: { [key: string]: string };
+  product_shop_options?: string[];
+  products?: string[];
+}
+
 const CompanyDetail: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
-    const [company, setCompany] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
-    const [editing, setEditing] = useState(false);
-    const [formData, setFormData] = useState<any>({});
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [user, setUser] = useState<UserData | null>(null);
+  const [profile, setProfile] = useState<CompanyProfile | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchCompany = async () => {
-            try {
-                setLoading(true);
-                const response = await getUserById(id!);
-                setCompany(response.data);
-                setFormData({
-                    userData: {
-                        name: response.data.name,
-                        email: response.data.email,
-                        whatsapp_number: response.data.whatsapp_number,
-                        isSuspended: response.data.isSuspended
-                    },
-                    domainData: response.data.domainProfile
-                });
-            } catch (error) {
-                console.error('Error fetching company:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+  const [userForm, setUserForm] = useState<Partial<UserData>>({});
+  const [profileForm, setProfileForm] = useState<Partial<CompanyProfile>>({
+    social_media_links: {},
+    product_shop_options: [],
+    products: [],
+  });
 
-        fetchCompany();
-    }, [id]);
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-        const checked = (e.target as HTMLInputElement).checked;
-
-        const [parent, child] = name.includes('.') ? name.split('.') : [name, ''];
-
-        setFormData((prev: any) => {
-            if (child) {
-                return {
-                    ...prev,
-                    [parent]: {
-                        ...prev[parent],
-                        [child]: type === 'checkbox' ? checked : value
-                    }
-                };
-            } else {
-                return {
-                    ...prev,
-                    userData: {
-                        ...prev.userData,
-                        [name]: type === 'checkbox' ? checked : value
-                    }
-                };
-            }
-        });
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            await updateUser(id!, formData);
-            setEditing(false);
-            // Refresh data
-            const response = await getUserById(id!);
-            setCompany(response.data);
-        } catch (error) {
-            console.error('Error updating company:', error);
+  useEffect(() => {
+    const fetchCompany = async () => {
+      if (!id) return;
+      setLoading(true);
+      try {
+        const response = await getUserById(id);
+        if (response?.success) {
+          const { user: fetchedUser, domainProfile } = response?.data;
+          setUser(fetchedUser);
+          setProfile(domainProfile);
+          setUserForm(fetchedUser);
+          setProfileForm({
+            ...domainProfile,
+            social_media_links: domainProfile?.social_media_links || {},
+            product_shop_options: domainProfile?.product_shop_options || [],
+            products: domainProfile?.products || [],
+          });
+        } else {
+          setError(response?.message || 'Unknown error');
         }
+      } catch (err) {
+        setError('Failed to fetch company details');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchCompany();
+  }, [id]);
 
-    const handleStatusChange = async () => {
-        try {
-            await toggleUserSuspension(id!, !company.isSuspended);
-            // Refresh data
-            const response = await getUserById(id!);
-            setCompany(response.data);
-        } catch (error) {
-            console.error('Error toggling status:', error);
-        }
-    };
-
-    const handleDelete = async () => {
-        if (window.confirm('Are you sure you want to delete this company?')) {
-            try {
-                await deleteUser(id!);
-                navigate(-1);
-            } catch (error) {
-                console.error('Error deleting company:', error);
-            }
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-        );
+  const handleUpdate = async () => {
+    if (!id || !user) return;
+    try {
+      const data = {
+        userData: userForm,
+        domainData: profileForm,
+      };
+      const response = await updateUser(id, data);
+      if (response?.success) {
+        setUser(response?.data?.user);
+        setProfile(response?.data?.domainProfile);
+        setIsEditing(false);
+        toast.success('Company profile updated successfully');
+      } else {
+        toast.error(response?.message || 'Update failed');
+      }
+    } catch (err) {
+      toast.error('Failed to update company profile');
+      console.error(err);
     }
+  };
 
-    if (!company) {
-        return <div className="text-center py-10">Company not found</div>;
+  const handleToggleSuspension = async () => {
+    if (!id || !user) return;
+    const newSuspended = !user?.isSuspended;
+    try {
+      const response = await toggleUserSuspension(id, newSuspended);
+      if (response?.success) {
+        setUser(response?.data);
+        toast.success(`User ${newSuspended ? 'suspended' : 'activated'} successfully`);
+      } else {
+        toast.error(response?.message || 'Toggle suspension failed');
+      }
+    } catch (err) {
+      toast.error('Failed to toggle suspension');
+      console.error(err);
     }
+  };
 
-    return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">Company Details</h1>
-                <div className="space-x-2">
-                    <button
-                        onClick={() => setEditing(!editing)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                    >
-                        {editing ? 'Cancel' : 'Edit'}
-                    </button>
-                    <button
-                        onClick={handleStatusChange}
-                        className={`px-4 py-2 rounded-md ${company.isSuspended ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-yellow-600 hover:bg-yellow-700 text-white'}`}
-                    >
-                        {company.isSuspended ? 'Activate Account' : 'Suspend Account'}
-                    </button>
-                    <button
-                        onClick={handleDelete}
-                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                    >
-                        Delete
-                    </button>
-                </div>
-            </div>
+  const handleDelete = async () => {
+    if (!id) return;
+    if (!window.confirm('Are you sure you want to delete this company?')) return;
+    try {
+      const response = await deleteUser(id);
+      if (response?.success) {
+        toast.success('Company deleted successfully');
+        navigate('/users');
+      } else {
+        toast.error(response?.message || 'Deletion failed');
+      }
+    } catch (err) {
+      toast.error('Failed to delete company');
+      console.error(err);
+    }
+  };
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-                {editing ? (
-                    <form onSubmit={handleSubmit}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <div>
-                                <h2 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h2>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Name</label>
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            value={formData.userData.name}
-                                            onChange={handleInputChange}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Email</label>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            value={formData.userData.email}
-                                            onChange={handleInputChange}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Phone</label>
-                                        <input
-                                            type="text"
-                                            name="whatsapp_number"
-                                            value={formData.userData.whatsapp_number}
-                                            onChange={handleInputChange}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, formType: 'user' | 'profile') => {
+    const setForm = formType === 'user' ? setUserForm : setProfileForm;
+    const form = formType === 'user' ? userForm : profileForm;
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-                            <div>
-                                <h2 className="text-lg font-medium text-gray-900 mb-4">Company Information</h2>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Company Name</label>
-                                        <input
-                                            type="text"
-                                            name="domainData.company_name"
-                                            value={formData.domainData?.company_name || ''}
-                                            onChange={handleInputChange}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Brand</label>
-                                        <input
-                                            type="text"
-                                            name="domainData.brand"
-                                            value={formData.domainData?.brand || ''}
-                                            onChange={handleInputChange}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">GST Number</label>
-                                        <input
-                                            type="text"
-                                            name="domainData.gst_number"
-                                            value={formData.domainData?.gst_number || ''}
-                                            onChange={handleInputChange}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+  const handleNestedChange = (section: keyof CompanyProfile, field: string, value: any) => {
+    setProfileForm({
+      ...profileForm,
+      [section]: {
+        ...(profileForm[section] as any || {}),
+        [field]: value,
+      },
+    });
+  };
 
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                type="button"
-                                onClick={() => setEditing(false)}
-                                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                            >
-                                Save Changes
-                            </button>
-                        </div>
-                    </form>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h2 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h2>
-                            <div className="space-y-2">
-                                <p><span className="font-medium">Name:</span> {company.name}</p>
-                                <p><span className="font-medium">Email:</span> {company.email}</p>
-                                <p><span className="font-medium">Phone:</span> {company.whatsapp_number}</p>
-                                <p>
-                                    <span className="font-medium">Status:</span>
-                                    <span className={`ml-2 px-2 py-1 rounded-full text-xs ${company.isSuspended ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
-                                        {company.isSuspended ? 'Suspended' : 'Active'}
-                                    </span>
-                                </p>
-                                <p><span className="font-medium">Created At:</span> {new Date(company.createdAt).toLocaleString()}</p>
-                            </div>
-                        </div>
+  const handleSocialMediaChange = (key: string, value: string) => {
+    setProfileForm({
+      ...profileForm,
+      social_media_links: {
+        ...(profileForm?.social_media_links || {}),
+        [key]: value,
+      },
+    });
+  };
 
-                        <div>
-                            <h2 className="text-lg font-medium text-gray-900 mb-4">Company Information</h2>
-                            {company.domainProfile ? (
-                                <div className="space-y-2">
-                                    <p><span className="font-medium">Company Name:</span> {company.domainProfile.company_name}</p>
-                                    <p><span className="font-medium">Brand:</span> {company.domainProfile.brand}</p>
-                                    <p><span className="font-medium">GST Number:</span> {company.domainProfile.gst_number}</p>
-                                    <p><span className="font-medium">PAN Number:</span> {company.domainProfile.pan_number}</p>
-                                    <p><span className="font-medium">CIN:</span> {company.domainProfile.cin}</p>
-                                </div>
-                            ) : (
-                                <p>No company profile found</p>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </div>
+  const addArrayItem = (arrayName: 'product_shop_options' | 'products') => {
+    const array = [...(profileForm[arrayName] || [])];
+    array.push('');
+    setProfileForm({ ...profileForm, [arrayName]: array });
+  };
+
+  const removeArrayItem = (arrayName: 'product_shop_options' | 'products', index: number) => {
+    const array = [...(profileForm[arrayName] || [])];
+    array.splice(index, 1);
+    setProfileForm({ ...profileForm, [arrayName]: array });
+  };
+
+  const handleArrayChange = (arrayName: 'product_shop_options' | 'products', index: number, value: string) => {
+    const array = [...(profileForm[arrayName] || [])];
+    array[index] = value;
+    setProfileForm({ ...profileForm, [arrayName]: array });
+  };
+
+  if (loading) return <div className="flex justify-center items-center h-screen text-xl"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div></div>;
+  if (error) return <div className="text-red-600 text-center text-xl">{error}</div>;
+  if (!profile) return <div className="text-center text-xl">Invalid user or profile type</div>;
+
+  return (
+    <div className="container mx-auto p-4 md:p-8 bg-gray-50 min-h-screen">
+      <div className="bg-white shadow-xl rounded-xl p-6 md:p-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 md:mb-0">Company Details - {profile?.company_name || user?.name}</h1>
+          <div className="flex flex-wrap space-x-3">
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+            >
+              {isEditing ? 'Cancel Edit' : 'Edit Profile'}
+            </button>
+            <button
+              onClick={handleToggleSuspension}
+              className={`px-4 py-2 ${user?.isSuspended ? 'bg-green-600' : 'bg-yellow-600'} text-white rounded-lg hover:opacity-90 transition`}
+            >
+              {user?.isSuspended ? 'Activate User' : 'Suspend User'}
+            </button>
+            <button
+              onClick={handleDelete}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            >
+              Delete
+            </button>
+          </div>
         </div>
-    );
+
+        {/* Basic Information */}
+        <section className="mb-10">
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">Basic Information</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="name"
+                  value={userForm?.name || ''}
+                  onChange={(e) => handleChange(e, 'user')}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{user?.name || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <p className="text-gray-900">{user?.email || 'N/A'}</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="whatsapp_number"
+                  value={userForm?.whatsapp_number || ''}
+                  onChange={(e) => handleChange(e, 'user')}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{user?.whatsapp_number || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <p className={`text-gray-900 ${user?.isSuspended ? 'text-red-600' : 'text-green-600'}`}>
+                {user?.isSuspended ? 'Suspended' : 'Active'}
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Created At</label>
+              <p className="text-gray-900">{user?.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A'}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Company Information */}
+        <section className="mb-10">
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">Company Information</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="company_name"
+                  value={profileForm?.company_name || ''}
+                  onChange={(e) => handleChange(e, 'profile')}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.company_name || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="brand"
+                  value={profileForm?.brand || ''}
+                  onChange={(e) => handleChange(e, 'profile')}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.brand || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Unique Name</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="unique_name"
+                  value={profileForm?.unique_name || ''}
+                  onChange={(e) => handleChange(e, 'profile')}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.unique_name || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="whatsapp_number"
+                  value={profileForm?.whatsapp_number || ''}
+                  onChange={(e) => handleChange(e, 'profile')}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.whatsapp_number || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">GST Number</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="gst_number"
+                  value={profileForm?.gst_number || ''}
+                  onChange={(e) => handleChange(e, 'profile')}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.gst_number || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">PAN Number</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="pan_number"
+                  value={profileForm?.pan_number || ''}
+                  onChange={(e) => handleChange(e, 'profile')}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.pan_number || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">CIN</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="cin"
+                  value={profileForm?.cin || ''}
+                  onChange={(e) => handleChange(e, 'profile')}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.cin || 'N/A'}</p>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Address */}
+        <section className="mb-10">
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">Address</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={profileForm?.address?.country || ''}
+                  onChange={(e) => handleNestedChange('address', 'country', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.address?.country || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={profileForm?.address?.state || ''}
+                  onChange={(e) => handleNestedChange('address', 'state', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.address?.state || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={profileForm?.address?.city || ''}
+                  onChange={(e) => handleNestedChange('address', 'city', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.address?.city || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={profileForm?.address?.pincode || ''}
+                  onChange={(e) => handleNestedChange('address', 'pincode', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.address?.pincode || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Country ISO Code</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={profileForm?.address?.countryIsoCode || ''}
+                  onChange={(e) => handleNestedChange('address', 'countryIsoCode', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.address?.countryIsoCode || 'N/A'}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">State ISO Code</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={profileForm?.address?.stateIsoCode || ''}
+                  onChange={(e) => handleNestedChange('address', 'stateIsoCode', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              ) : (
+                <p className="text-gray-900">{profile?.address?.stateIsoCode || 'N/A'}</p>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Social Media Links */}
+        <section className="mb-10">
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">Social Media Links</h2>
+          {isEditing ? (
+            <div className="space-y-4">
+              {Object.keys(profileForm?.social_media_links || {}).map((key, index) => (
+                <div key={index} className="flex items-center space-x-4">
+                  <input
+                    type="text"
+                    value={key}
+                    placeholder="Platform (e.g., Instagram)"
+                    onChange={(e) => {
+                      const newLinks = { ...profileForm?.social_media_links };
+                      const value = newLinks[key];
+                      delete newLinks[key];
+                      newLinks[e.target.value] = value;
+                      setProfileForm({ ...profileForm, social_media_links: newLinks });
+                    }}
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <input
+                    type="text"
+                    value={profileForm?.social_media_links?.[key] || ''}
+                    placeholder="URL"
+                    onChange={(e) => handleSocialMediaChange(key, e.target.value)}
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <button
+                    onClick={() => {
+                      const newLinks = { ...profileForm?.social_media_links };
+                      delete newLinks[key];
+                      setProfileForm({ ...profileForm, social_media_links: newLinks });
+                    }}
+                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() => handleSocialMediaChange(`platform_${Date.now()}`, '')}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Add Social Media Link
+              </button>
+            </div>
+          ) : (
+            <ul className="list-disc pl-5 space-y-2">
+              {profile?.social_media_links && Object.keys(profile.social_media_links).length > 0 ? (
+                Object.entries(profile.social_media_links).map(([platform, url], index) => (
+                  <li key={index} className="text-gray-900">
+                    {platform}: <a href={url} className="text-blue-600 hover:underline">{url}</a>
+                  </li>
+                ))
+              ) : (
+                <p className="text-gray-900">No social media links available</p>
+              )}
+            </ul>
+          )}
+        </section>
+
+        {/* Product Shop Options */}
+        <section className="mb-10">
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">Product Shop Options</h2>
+          {isEditing ? (
+            <div className="space-y-4">
+              {(profileForm?.product_shop_options || []).map((option, index) => (
+                <div key={index} className="flex items-center space-x-4">
+                  <input
+                    type="text"
+                    value={option}
+                    onChange={(e) => handleArrayChange('product_shop_options', index, e.target.value)}
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <button
+                    onClick={() => removeArrayItem('product_shop_options', index)}
+                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() => addArrayItem('product_shop_options')}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Add Product Shop Option
+              </button>
+            </div>
+          ) : (
+            <ul className="list-disc pl-5 space-y-2">
+              {profile?.product_shop_options?.length ? (
+                profile.product_shop_options.map((option, index) => (
+                  <li key={index} className="text-gray-900">{option}</li>
+                ))
+              ) : (
+                <p className="text-gray-900">No product shop options available</p>
+              )}
+            </ul>
+          )}
+        </section>
+
+        {/* Products */}
+        <section className="mb-10">
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">Products</h2>
+          {isEditing ? (
+            <div className="space-y-4">
+              {(profileForm?.products || []).map((product, index) => (
+                <div key={index} className="flex items-center space-x-4">
+                  <input
+                    type="text"
+                    value={product}
+                    onChange={(e) => handleArrayChange('products', index, e.target.value)}
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <button
+                    onClick={() => removeArrayItem('products', index)}
+                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() => addArrayItem('products')}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Add Product
+              </button>
+            </div>
+          ) : (
+            <ul className="list-disc pl-5 space-y-2">
+              {profile?.products?.length ? (
+                profile.products.map((product, index) => (
+                  <li key={index} className="text-gray-900">{product}</li>
+                ))
+              ) : (
+                <p className="text-gray-900">No products available</p>
+              )}
+            </ul>
+          )}
+        </section>
+
+        {/* Image */}
+        <section className="mb-10">
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">Image</h2>
+          {isEditing ? (
+            <input
+              type="text"
+              name="image"
+              value={profileForm?.image || ''}
+              onChange={(e) => handleChange(e, 'profile')}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              placeholder="Image URL or Path"
+            />
+          ) : profile?.image ? (
+            <img src={profile.image} alt="Company Image" className="w-48 h-48 rounded-lg object-cover" />
+          ) : (
+            <p className="text-gray-900">No image available</p>
+          )}
+        </section>
+
+        {isEditing && (
+          <div className="flex justify-end mt-8">
+            <button
+              onClick={handleUpdate}
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+            >
+              Save All Changes
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default CompanyDetail;

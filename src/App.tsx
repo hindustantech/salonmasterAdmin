@@ -26,6 +26,8 @@ import CartDataViewer from './Component/Order/Order';
 import AddUser from './Component/Adduser/Add_user';
 import UploadPage from './Component/dummaydata/UploadPage';
 import { UserTracking } from './Component/UserTraking/UserTrakingSystem';
+import SalonDetails from './Component/UserMnagemnet/UserDeatils/SalonDetils';
+import UserDetails from './Component/UserMnagemnet/UserDeatils/UserDetils';
 // Layout wrapper for protected routes
 const ProtectedLayoutWrapper: React.FC = () => {
   return (
@@ -147,6 +149,18 @@ const ProtectedLayoutWrapper: React.FC = () => {
             requiredPermissions={['view_user_details']}
           />}>
             <Route path="/Detail/:id" element={<CompanyDetail />} />
+          </Route>
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['view_user_details']}
+          />}>
+            <Route path="/Detail/salon/:id" element={<SalonDetails />} />
+          </Route>
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin']}
+            requiredPermissions={['view_user_details']}
+          />}>
+            <Route path="/Detail/emp/:id" element={<UserDetails />} />
           </Route>
 
           {/* Company Routes */}
