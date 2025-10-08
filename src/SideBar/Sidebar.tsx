@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
 
+
 type UserRole = 'company' | 'superadmin' | 'admin';
 type SidebarItem = {
   path: string;
@@ -335,7 +336,7 @@ const Sidebar: React.FC = () => {
       roles: ['company', 'superadmin',],
       description: 'Manage inventory',
       subItems: [
-       
+
         {
           path: '/AddProducts',
           name: 'Add Product',
@@ -357,15 +358,30 @@ const Sidebar: React.FC = () => {
       icon: <FiTruck size={20} />,
       roles: ['company', 'superadmin'],
       description: 'Track',
-    
+
     },
-    
-    
+
+
     {
       path: '/ManageTrainingVideos',
       name: 'Manage Videos',
       icon: <FiFilm size={18} />,
       roles: ['company', 'superadmin']
+
+    },
+    {
+      path: '/ManageListings',
+      name: 'Manage Listings',
+      icon: <FiFilm size={18} />,
+      roles: ['superadmin'],
+      subItems: [
+        {
+          path: '/CreateListingPage',
+          name: 'Create Listing',
+          icon: <FiUsers size={18} />,
+          roles: ['superadmin']
+        },
+      ]
 
     },
     {
@@ -416,7 +432,7 @@ const Sidebar: React.FC = () => {
       path: '/UserTracking',
       name: 'UserTracking',
       icon: <FiBriefcase size={20} />,
-      roles: ['superadmin','admin'],
+      roles: ['superadmin', 'admin'],
       description: 'UserTracking',
 
     },

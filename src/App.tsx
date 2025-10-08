@@ -28,6 +28,8 @@ import UploadPage from './Component/dummaydata/UploadPage';
 import { UserTracking } from './Component/UserTraking/UserTrakingSystem';
 import SalonDetails from './Component/UserMnagemnet/UserDeatils/SalonDetils';
 import UserDetails from './Component/UserMnagemnet/UserDeatils/UserDetils';
+import ManageListings from './Component/ListingManagment/ManageListings';
+import CreateListingPage from './Component/ListingManagment/creatingList';
 // Layout wrapper for protected routes
 const ProtectedLayoutWrapper: React.FC = () => {
   return (
@@ -54,6 +56,18 @@ const ProtectedLayoutWrapper: React.FC = () => {
             requiredPermissions={['UserTracking']}
           />}>
             <Route path="/UserTracking" element={<UserTracking />} />
+          </Route>
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin', 'admin']}
+            requiredPermissions={['UserTracking']}
+          />}>
+            <Route path="/ManageListings" element={<ManageListings />} />
+          </Route>
+          <Route element={<ProtectedRoute
+            allowedRoles={['superadmin', 'admin']}
+            requiredPermissions={['UserTracking']}
+          />}>
+            <Route path="/CreateListingPage" element={<CreateListingPage />} />
           </Route>
 
           <Route element={<ProtectedRoute

@@ -121,15 +121,15 @@ const AddUser: React.FC = () => {
           />
 
           {/* domain_type Buttons */}
-          <div>
+          <div className="flex">
             <label className="block mb-2 font-semibold text-blue-700">Select domain type:</label>
-            <div className="flex gap-3">
+            <div className=" mx-2 flex gap-3">
               {["salon", "worker", "company"].map((domain_type) => (
                 <button
                   type="button"
                   key={domain_type}
                   onClick={() => handledomain_typeSelect(domain_type as UserFormData["domain_type"])}
-                  className={`px-5 py-2 rounded-xl border-2 font-semibold transition text-sm ${formData.domain_type === domain_type
+                  className={`px-3 py-1 rounded-xl border-2 font-semibold transition text-sm ${formData.domain_type === domain_type
                       ? "bg-blue-600 text-white border-blue-600 shadow"
                       : "bg-gray-100 text-blue-700 border-blue-200 hover:bg-blue-50"
                     }`}
@@ -143,7 +143,7 @@ const AddUser: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition disabled:opacity-50 shadow-lg"
+            className="w-full bg-gradient-to-r from-green-600 to-green-900 text-white py-3 rounded-xl font-bold text-lg hover:from-green-900 hover:to-green-600 transition disabled:opacity-50 shadow-lg"
           >
             {loading ? "Adding..." : "Add User"}
           </button>
