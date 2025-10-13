@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import InterestModal from './InterestModal';
 
 interface Listing {
     _id: string;
@@ -10,7 +11,7 @@ interface Listing {
     email: string;
     shopName: string;
     status: 'active' | 'inactive';
-    heading: '';
+    heading: string;
     description: string;
     short_description: string;
     address: string;
@@ -22,13 +23,51 @@ interface Listing {
     expiredAt: string;
 }
 
+export interface UserInfo {
+    _id: string;
+    id: string;
+    name: string;
+    whatsapp_number?: string;
+}
+
+export interface AdDetails {
+    _id: string;
+    userId: string;
+    fullName: string;
+    idDetails: string;
+    phoneNumber: string;
+    email: string;
+    shopName: string;
+    status: 'active' | 'inactive';
+    heading: string;
+    description: string;
+    shortDescription: string;
+    address: string;
+    advertisementDetails: string;
+    advertisementImages: string[];
+    termsAccepted: boolean;
+    createdAt: string;
+    updatedAt: string;
+    expiredAt: string;
+}
+
+export interface Interest {
+    _id: string;
+    adId: AdDetails;
+    adUserId: UserInfo;
+    interestedUserId: UserInfo;
+    category: 'FranchiseList' | 'TraningList' | 'SellerListing';
+    createdAt: string;
+    updatedAt: string;
+    __v?: number;
+}
+
 interface FormData extends Omit<Listing, 'advertisementImages' | '_id' | 'userId' | 'createdAt' | 'updatedAt' | 'expiredAt'> {
     imagesToRemove: string[];
     newImages: File[];
 }
 
 const ManageListings: React.FC = () => {
-
     const [listingType, setListingType] = useState<'franchise' | 'training' | 'seller'>('franchise');
     const [listings, setListings] = useState<Listing[]>([]);
     const [page, setPage] = useState(1);
@@ -58,8 +97,13 @@ const ManageListings: React.FC = () => {
         newImages: [],
     });
 
-    const token = localStorage.getItem('token')
-    const baseurl = import.meta.env.VITE_BASE_URL
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [interests, setInterests] = useState<Interest[]>([]);
+    const [modalLoading, setModalLoading] = useState(false);
+
+    const token = localStorage.getItem('token');
+    const baseurl = import.meta.env.VITE_BASE_URL;
+
     const fetchListings = async () => {
         setLoading(true);
         try {
@@ -79,6 +123,29 @@ const ManageListings: React.FC = () => {
             setError(err.response?.data?.message || 'Failed to fetch listings');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchListingsInterested = async (adId: string) => {
+        setModalLoading(true);
+        try {
+            const endpoint = `${baseurl}/api/v1/interested/all-interests`;
+
+            const response = await axios.post(
+                endpoint,
+                { adId },
+                {
+                    params: { page, limit },
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            setInterests(response.data.interests || response.data.data || []);
+            setIsModalOpen(true);
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Failed to fetch interests');
+        } finally {
+            setModalLoading(false);
         }
     };
 
@@ -118,7 +185,7 @@ const ManageListings: React.FC = () => {
                 } else if (key === 'imagesToRemove') {
                     formDataToSend.append('imagesToRemove', JSON.stringify(value));
                 } else {
-                    formDataToSend.append(key, value);
+                    formDataToSend.append(key, value as string);
                 }
             });
 
@@ -224,6 +291,11 @@ const ManageListings: React.FC = () => {
         });
     };
 
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setInterests([]);
+    };
+
     useEffect(() => {
         fetchListings();
     }, [listingType, page, search, fromDate, toDate]);
@@ -235,11 +307,23 @@ const ManageListings: React.FC = () => {
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                         {error}
+                        <button 
+                            className="float-right font-bold" 
+                            onClick={() => setError(null)}
+                        >
+                            ×
+                        </button>
                     </div>
                 )}
                 {success && (
                     <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
                         {success}
+                        <button 
+                            className="float-right font-bold" 
+                            onClick={() => setSuccess(null)}
+                        >
+                            ×
+                        </button>
                     </div>
                 )}
                 <div className="mb-6 flex flex-col sm:flex-row gap-4">
@@ -343,11 +427,9 @@ const ManageListings: React.FC = () => {
                                 <input
                                     type='text'
                                     value={formData.heading}
-                                    onChange={(e) => setFormData({ ...formData, heading: e.target.value as any })}
+                                    onChange={(e) => setFormData({ ...formData, heading: e.target.value })}
                                     className="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md"
-                                >
-                                
-                                </input>
+                                />
                             </div>
                             <div className="sm:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700">Description</label>
@@ -457,13 +539,24 @@ const ManageListings: React.FC = () => {
                                 <tr key={listing._id}>
                                     <td className="px-6 py-4 whitespace-nowrap">{listing.fullName}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">{listing.shopName}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">{listing.status}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${listing.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                            {listing.status}
+                                        </span>
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <button
                                             onClick={() => handleEdit(listing)}
                                             className="text-indigo-600 hover:text-indigo-900 mr-4"
                                         >
                                             Edit
+                                        </button>
+                                        <button
+                                            onClick={() => fetchListingsInterested(listing._id)}
+                                            disabled={modalLoading}
+                                            className="text-blue-600 hover:text-blue-900 mr-4"
+                                        >
+                                            {modalLoading ? 'Loading...' : 'View Interests'}
                                         </button>
                                         <button
                                             onClick={() => handleDelete(listing._id)}
@@ -483,7 +576,7 @@ const ManageListings: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
-                <div className="mt-4 flex justify-between">
+                <div className="mt-4 flex justify-between items-center">
                     <button
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={page === 1 || loading}
@@ -491,7 +584,7 @@ const ManageListings: React.FC = () => {
                     >
                         Previous
                     </button>
-                    <span>Page {page} of {Math.ceil(total / limit)}</span>
+                    <span className="text-gray-700">Page {page} of {Math.ceil(total / limit)}</span>
                     <button
                         onClick={() => setPage((p) => p + 1)}
                         disabled={page * limit >= total || loading}
@@ -501,6 +594,12 @@ const ManageListings: React.FC = () => {
                     </button>
                 </div>
             </div>
+            <InterestModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                interests={interests}
+                loading={modalLoading}
+            />
         </div>
     );
 };
